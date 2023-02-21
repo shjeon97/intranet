@@ -1,0 +1,27 @@
+version: "3"
+services:
+  frontend:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./frontend
+    image: shjeon97/intranet-frontend:1.0.0
+    container_name: intranet-frontend
+    env_file:
+      - ./frontend/.env
+    ports:
+      - "3001:3000"
+
+  backend:
+    restart: always
+    build:
+      dockerfile: Dockerfile
+      context: ./backend
+    image: shjeon97/intranet-backend:1.0.0
+    container_name: intranet-backend
+    volumes:
+      - /main/public/intranet/upload:/public/upload
+    env_file:
+      - ./backend/.env.prod
+    ports:
+      - "4001:4000"
