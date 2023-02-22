@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { gql, useMutation, useQuery } from "@apollo/client";
 import {
@@ -287,16 +287,24 @@ function Me() {
                 <div className="">
                   <Typography variant="h6">팀</Typography>
                   <div className="flex flex-wrap gap-2">
-                    {data?.me?.teams?.map((team: Team) => (
-                      <Chip color="cyan" value={team.name} />
+                    {data?.me?.teams?.map((team: Team, index: number) => (
+                      <Chip
+                        key={`team-name-${index}`}
+                        color="cyan"
+                        value={team.name}
+                      />
                     ))}
                   </div>
                 </div>
                 <div>
                   <Typography variant="h6">권한</Typography>
                   <div className="flex flex-wrap gap-2">
-                    {data?.me?.roles?.map((role: Role) => (
-                      <Chip color="indigo" value={role.name} />
+                    {data?.me?.roles?.map((role: Role, index: number) => (
+                      <Chip
+                        key={`role-name-${index}`}
+                        color="indigo"
+                        value={role.name}
+                      />
                     ))}
                   </div>
                 </div>

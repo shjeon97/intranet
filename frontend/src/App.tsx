@@ -37,13 +37,17 @@ function App() {
           {isLoggedIn && !authRoute && <NavBar />}
           <Routes>
             {isLoggedIn ? (
-              <Route path="/" element={<Main />} />
+              <>
+                <Route path="/" element={<Main />} />
+                <Route path="/me" element={<Me />} />
+              </>
             ) : (
-              <Route path="/" element={<Login />} />
+              <>
+                <Route path="/" element={<Login />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/sign-up" element={<SignUp />} />
+              </>
             )}
-            <Route path="/me" element={<Me />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/sign-up" element={<SignUp />} />
           </Routes>
         </div>
       </BrowserRouter>
