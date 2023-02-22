@@ -24,12 +24,12 @@ jobs:
       - name: intranet pull
         run: |
           git pull origin master
-        working-directory: ../../../../server/intranet
+        working-directory: ../../../../../server/intranet
 
       - name: intranet docker restart
         run: |
           docker compose up --build -d
-        working-directory: ../../../../server/intranet
+        working-directory: ../../../../../server/intranet
 
       - name: intranet docker old image delete
         run: |
