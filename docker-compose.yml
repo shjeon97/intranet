@@ -8,7 +8,7 @@ services:
     image: shjeon97/intranet-frontend:1.0.0
     container_name: intranet-frontend
     env_file:
-      - ./frontend/.env
+      - ./frontend/.env.production
     ports:
       - "3001:3000"
 
@@ -22,6 +22,6 @@ services:
     volumes:
       - /main/public/intranet/upload:/public/upload
     env_file:
-      - ./backend/.env.prod
+      - ./backend/.env.production
     ports:
       - "4001:4000"
