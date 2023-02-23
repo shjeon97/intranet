@@ -10,7 +10,7 @@ services:
     env_file:
       - ./frontend/.env.production
     ports:
-      - "3001:3000"
+      - "3001:5000"
 
   backend:
     restart: always
