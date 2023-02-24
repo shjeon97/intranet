@@ -2,6 +2,7 @@ version: "3"
 services:
   frontend:
     restart: always
+    resource_class: large
     build:
       dockerfile: Dockerfile
       context: ./frontend
