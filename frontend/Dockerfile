@@ -13,7 +13,7 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-CMD ["npm" "run", "start"]
+CMD ["npm","run","start"]
 
 # # Build the application
 # RUN npm run build
