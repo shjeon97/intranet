@@ -101,7 +101,7 @@ function Me() {
     });
   };
 
-  if (meLoading && !data) {
+  if (meLoading) {
     return <Loading />;
   }
 
