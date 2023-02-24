@@ -89,6 +89,7 @@ export default function NavBar() {
         <div className="hidden lg:flex lg:gap-5">
           <Link to={"/me"}>
             <FontAwesomeIcon
+              color="black"
               className="col-span-1 text-end cursor-pointer"
               size="xl"
               icon={solid("circle-user")}
@@ -122,6 +123,7 @@ export default function NavBar() {
           <div className="flex items-center justify-between">
             <Link to={"/me"}>
               <FontAwesomeIcon
+                color="black"
                 className="col-span-1 text-end cursor-pointer"
                 size="xl"
                 icon={solid("circle-user")}

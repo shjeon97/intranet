@@ -100,6 +100,8 @@ function Me() {
       },
     });
   };
+  console.log(data);
+
   if (meLoading) {
     return <Loading />;
   }
