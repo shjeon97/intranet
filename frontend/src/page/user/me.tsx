@@ -100,9 +100,8 @@ function Me() {
       },
     });
   };
-  console.log(data);
 
-  if (meLoading) {
+  if (meLoading && !data) {
     return <Loading />;
   }
 
