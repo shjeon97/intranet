@@ -13,11 +13,9 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-CMD ["npm","run","start"]
-
 # # Build the application
-# RUN npm run build
+RUN npm run build
 
 # # Serve the application using a static server
-# RUN npm install -g serve
-# CMD ["npx" "serve", "-s", "build"]
+RUN npm install -g serve
+CMD ["serve", "-s", "build"]
