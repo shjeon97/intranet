@@ -52,6 +52,7 @@ export const navList = (
 );
 
 export default function NavBar() {
+  const { data } = useQuery(ME_QUERY);
   const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
   const isSidebarOpen = useReactiveVar(isSidebarOpenVar);
@@ -95,9 +96,9 @@ export default function NavBar() {
               className="col-span-1 text-end cursor-pointer"
               size="xl"
               icon={solid("circle-user")}
+              title={data?.me?.name}
             />
           </Link>
-
           <FontAwesomeIcon
             onClick={onClickHandlerLogout}
             color="red"
@@ -129,9 +130,9 @@ export default function NavBar() {
                 className="col-span-1 text-end cursor-pointer"
                 size="xl"
                 icon={solid("circle-user")}
+                title={data?.me?.name}
               />
             </Link>
-
             <FontAwesomeIcon
               onClick={onClickHandlerLogout}
               color="red"
