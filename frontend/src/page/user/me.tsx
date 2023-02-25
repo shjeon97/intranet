@@ -37,7 +37,7 @@ interface IFormInput extends EditUserInput {
 }
 
 function Me() {
-  const { data, loading: meLoading } = useQuery(ME_QUERY);
+  const { data, loading: meLoading, refetch } = useQuery(ME_QUERY);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const {
     register,
@@ -51,6 +51,7 @@ function Me() {
         editUser: { ok, error },
       } = data;
       if (ok) {
+        refetch();
         Toast.fire({
           icon: "success",
           title: `유저정보 수정이 완료되었습니다`,
