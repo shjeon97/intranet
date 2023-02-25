@@ -37,7 +37,7 @@ interface IFormInput extends EditUserInput {
 }
 
 function Me() {
-  const { data, loading: meLoading } = useQuery(ME_QUERY);
+  const { data, loading: meLoading, refetch } = useQuery(ME_QUERY);
   const [isChangePassword, setIsChangePassword] = useState(false);
   const {
     register,
@@ -57,6 +57,7 @@ function Me() {
           position: "top-end",
           timer: 1200,
         });
+        refetch();
       } else if (error) {
         Toast.fire({
           icon: "error",
