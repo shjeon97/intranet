@@ -11,12 +11,11 @@ import {
 } from "@material-tailwind/react";
 import { Link, useNavigate } from "react-router-dom";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import { Toast } from "../lib/sweetalert2/toast";
 import { LOCAL_STORAGE_TOKEN } from "../constants";
 import { authTokenVar, isLoggedInVar, isSidebarOpenVar } from "../apollo";
 import { LoginInput, LoginMutation } from "../gql/graphql";
-import { ME_QUERY } from "../hook/useMe";
 
 const LOGIN_MUTATION = gql`
   mutation login($input: LoginInput!) {
@@ -29,7 +28,6 @@ const LOGIN_MUTATION = gql`
 `;
 
 export const Login = () => {
-  const { refetch } = useQuery(ME_QUERY);
   useEffect(() => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN);
     isLoggedInVar(false);
@@ -47,7 +45,7 @@ export const Login = () => {
         authTokenVar(token);
         isLoggedInVar(true);
         navigate("/");
-        refetch();
+        window.location.reload();
       } else if (error) {
         Toast.fire({
           icon: "error",
