@@ -38,7 +38,6 @@
     "graphql": "^16.6.0",
     "joi": "^17.7.0",
     "nest-winston": "^1.8.0",
-    "nestjs-real-ip": "^2.2.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.9.0",
     "reflect-metadata": "^0.1.13",
