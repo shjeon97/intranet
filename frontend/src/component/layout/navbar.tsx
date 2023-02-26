@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   Navbar,
   MobileNav,
-  Typography,
   IconButton,
   Button,
 } from "@material-tailwind/react";
@@ -13,43 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { useQuery, useReactiveVar } from "@apollo/client";
 import { ME_QUERY } from "../../hook/useMe";
-
-export const navList = (
-  <>
-    <Typography
-      as="li"
-      variant="small"
-      color="blue-gray"
-      className="p-1 font-normal"
-    >
-      test
-    </Typography>
-    <Typography
-      as="li"
-      variant="small"
-      color="blue-gray"
-      className="p-1 font-normal"
-    >
-      Account
-    </Typography>
-    <Typography
-      as="li"
-      variant="small"
-      color="blue-gray"
-      className="p-1 font-normal"
-    >
-      Blocks
-    </Typography>
-    <Typography
-      as="li"
-      variant="small"
-      color="blue-gray"
-      className="p-1 font-normal"
-    >
-      Docs
-    </Typography>
-  </>
-);
+import Menu from "./menu";
 
 export default function NavBar() {
   const { data } = useQuery(ME_QUERY);
@@ -122,7 +85,7 @@ export default function NavBar() {
       </div>
       <MobileNav open={openNav}>
         <div className="container mx-auto flex flex-col gap-2">
-          {navList}
+          <Menu />
           <div className="flex items-center justify-between">
             <Link to={"/me"}>
               <FontAwesomeIcon

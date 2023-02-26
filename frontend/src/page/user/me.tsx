@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { gql, useMutation, useQuery } from "@apollo/client";
+import { gql, useMutation } from "@apollo/client";
 import {
   Alert,
   Button,
@@ -14,7 +14,7 @@ import {
   Switch,
   Typography,
 } from "@material-tailwind/react";
-import { ME_QUERY } from "../../hook/useMe";
+import { useMe } from "../../hook/useMe";
 import { EditUserInput, EditUserMutation, Role, Team } from "../../gql/graphql";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,7 +37,7 @@ interface IFormInput extends EditUserInput {
 }
 
 function Me() {
-  const { data, loading: meLoading, refetch } = useQuery(ME_QUERY);
+  const { data, loading: meLoading, refetch } = useMe();
   const [isChangePassword, setIsChangePassword] = useState(false);
   const {
     register,

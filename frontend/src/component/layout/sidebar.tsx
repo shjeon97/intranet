@@ -2,7 +2,7 @@ import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button } from "@material-tailwind/react";
 import { FC } from "react";
-import { navList } from "./navbar";
+import Menu from "./menu";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ const Sidebar: FC<SidebarProps> = ({ isOpen, toggle }) => {
       </div>
       <nav>
         <ul className=" cursor-pointer mb-4 flex mt-0 flex-col items-start p-2 gap-6">
-          {navList}
+          <Menu />
         </ul>
         <div className="absolute bottom-0 right-0 w-full p-2 pm-3">
           <Button className=" text-center w-full">출근하기</Button>
