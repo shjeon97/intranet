@@ -30,8 +30,9 @@ export class Log {
   @IsEnum(LogType)
   type: LogType;
 
-  @Column()
-  message: string;
+  @Field(() => [], { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  contents?: any[];
 
   @Field(() => Date)
   @CreateDateColumn()

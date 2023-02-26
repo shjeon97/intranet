@@ -54,7 +54,12 @@ export class AuthResolver {
 
       this.logService.create({
         type: LogType.Login,
-        message: `user id : ${user.id} | ip : ${content.clientIp} `,
+        contents: [
+          {
+            userId: user.id,
+            ip: content.clientIp,
+          },
+        ],
       });
 
       return {

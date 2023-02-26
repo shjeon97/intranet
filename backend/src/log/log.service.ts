@@ -12,12 +12,12 @@ export class LogService {
     private readonly logRepository: Repository<Log>,
   ) {}
 
-  async create({ type, message }: CreateLogInput): Promise<CoreOutput> {
+  async create({ type, contents }: CreateLogInput): Promise<CoreOutput> {
     try {
       await this.logRepository.save(
         this.logRepository.create({
           type,
-          message,
+          contents,
         }),
       );
       return {

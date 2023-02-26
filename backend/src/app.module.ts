@@ -21,11 +21,7 @@ import { Log } from './log/entity/log.entity';
       driver: ApolloDriver,
       autoSchemaFile: true,
       context: ({ req }) => {
-        const clientIp =
-          req.headers['x-forwarded-for'] ||
-          req.connection.remoteAddress ||
-          req.socket.remoteAddress ||
-          (req.connection as any)?.socket?.remoteAddress;
+        const clientIp = req.headers['x-real-ip'];
 
         if (req.headers.authorization) {
           const token = req.headers.authorization.substr(7);
