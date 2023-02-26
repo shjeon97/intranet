@@ -1,4 +1,4 @@
-import { Args, Mutation, Resolver } from '@nestjs/graphql';
+import { Args, Context, Mutation, Resolver } from '@nestjs/graphql';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
 import { LoginInput, LoginOutput } from './dto/login.dto';
@@ -6,7 +6,6 @@ import * as bcrypt from 'bcrypt';
 import { UserStatus } from 'src/user/entity/user.entity';
 import { LogService } from 'src/log/log.service';
 import { LogType } from 'src/log/entity/log.entity';
-import { UserIp } from './decorator/ip.decorator';
 
 @Resolver()
 export class AuthResolver {
@@ -18,7 +17,7 @@ export class AuthResolver {
 
   @Mutation(() => LoginOutput)
   async login(
-    @UserIp() ip: string,
+    @Context() content: any,
     @Args('input') { email, password }: LoginInput,
   ): Promise<LoginOutput> {
     try {
@@ -55,7 +54,7 @@ export class AuthResolver {
 
       this.logService.create({
         type: LogType.Login,
-        message: `user id : ${user.id} | ip : ${ip} `,
+        message: `user id : ${user.id} | ip : ${content.clientIp} `,
       });
 
       return {
