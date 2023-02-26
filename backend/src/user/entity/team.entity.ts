@@ -1,8 +1,8 @@
-import { Field, ObjectType } from '@nestjs/graphql';
+import { Field, InputType, ObjectType } from '@nestjs/graphql';
 import { IsArray, IsNumber, IsString } from 'class-validator';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { User } from './user.entity';
-
+@InputType('TeamInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
 export class Team {

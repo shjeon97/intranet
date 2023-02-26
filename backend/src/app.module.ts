@@ -12,6 +12,8 @@ import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
 import { NoticeModule } from './notice/notice.module';
 import { Notice } from './notice/entity/notice.entity';
+import { LogModule } from './log/log.module';
+import { Log } from './log/entity/log.entity';
 
 @Module({
   imports: [
@@ -64,12 +66,13 @@ import { Notice } from './notice/entity/notice.entity';
       // hot load 사용시 선언
       keepConnectionAlive: true,
       // 사용할 entity들 선언
-      entities: [User, Role, Team, Notice],
+      entities: [User, Role, Team, Notice, Log],
     }),
     UserModule,
     CommonModule,
     AuthModule,
     NoticeModule,
+    LogModule,
   ],
   controllers: [],
   providers: [],

@@ -4,15 +4,21 @@ import { AuthService } from './auth.service';
 import { LoginInput, LoginOutput } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { UserStatus } from 'src/user/entity/user.entity';
+import { LogService } from 'src/log/log.service';
+import { LogType } from 'src/log/entity/log.entity';
+import { RealIP } from 'nestjs-real-ip';
 
 @Resolver()
 export class AuthResolver {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
+    private readonly logService: LogService,
   ) {}
+
   @Mutation(() => LoginOutput)
   async login(
+    @RealIP() ip: string,
     @Args('input') { email, password }: LoginInput,
   ): Promise<LoginOutput> {
     const user = await this.userService.findOneByEmail(email, true);
@@ -45,6 +51,11 @@ export class AuthResolver {
         error: 'token 생성 실패',
       };
     }
+
+    this.logService.create({
+      type: LogType.Login,
+      message: `user id : ${user.id} | ip : ${ip} `,
+    });
 
     return {
       ok: true,
