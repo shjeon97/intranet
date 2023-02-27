@@ -4,7 +4,7 @@ import {
   ObjectType,
   registerEnumType,
 } from '@nestjs/graphql';
-import { IsEnum, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsNumber, IsOptional, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { User } from 'src/user/entity/user.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
@@ -25,6 +25,8 @@ export class Notice extends CoreEntity {
 
   @Column()
   @RelationId((notice: Notice) => notice.user)
+  userId: number;
+
   @Field(() => String)
   @Column()
   @IsString()
@@ -42,6 +44,7 @@ export class Notice extends CoreEntity {
 
   @Field(() => Number)
   @Column({ nullable: true })
+  @IsOptional()
   @IsNumber()
   lastUpdateUserId?: number;
 }
