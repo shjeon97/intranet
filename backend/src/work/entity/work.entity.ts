@@ -9,14 +9,6 @@ import { WorkStatus } from './work-status.entity';
 @ObjectType()
 @Entity()
 export class Work extends CoreEntity {
-  @Field(() => WorkStatus)
-  @ManyToOne(() => WorkStatus, { eager: true })
-  workStatus: WorkStatus;
-
-  @Column()
-  @RelationId((work: Work) => work.workStatus)
-  workStatusId: number;
-
   @Field(() => User)
   @ManyToOne(() => User, { eager: true })
   user: User;
@@ -24,6 +16,14 @@ export class Work extends CoreEntity {
   @Column()
   @RelationId((work: Work) => work.user)
   userId: number;
+
+  @Field(() => WorkStatus)
+  @ManyToOne(() => WorkStatus, { eager: true })
+  workStatus: WorkStatus;
+
+  @Column()
+  @RelationId((work: Work) => work.workStatus)
+  workStatusId: number;
 
   @Field(() => String)
   @Column({ type: 'date' })
@@ -41,6 +41,12 @@ export class Work extends CoreEntity {
   @IsOptional()
   @IsString()
   endTime?: string;
+
+  @Field(() => String)
+  @Column({ nullable: true })
+  @IsOptional()
+  @IsString()
+  memo?: string;
 
   @Field(() => String)
   @Column({ nullable: true })

@@ -149,6 +149,13 @@ export enum UserStatus {
   Work = 'Work'
 }
 
+export type WorkStatus = {
+  __typename?: 'WorkStatus';
+  color: Scalars['String'];
+  id: Scalars['Float'];
+  name: Scalars['String'];
+};
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 

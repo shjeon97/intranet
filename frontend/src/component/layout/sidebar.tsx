@@ -1,8 +1,10 @@
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button } from "@material-tailwind/react";
+import { Button, Typography } from "@material-tailwind/react";
 import { FC } from "react";
 import Menu from "./menu";
+
+import useRealtimeClock from "../../hook/useRealTimeClock";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,14 +12,18 @@ interface SidebarProps {
 }
 
 const Sidebar: FC<SidebarProps> = ({ isOpen, toggle }) => {
+  const time = useRealtimeClock();
+
   return (
     <div
       className={`${
         isOpen ? "translate-x-0 ease-out" : "-translate-x-full ease-in"
       }  fixed  z-30 top-0 left-0 w-64 h-screen rounded-3xl bg-white overflow-y-auto shadow-lg transform transition-all duration-300`}
     >
-      <div className="flex items-end justify-end p-2">
-        <button className="p-2 rounded-md " onClick={toggle}>
+      <div className="flex justify-between  p-2 m-2 mt-4">
+        <Typography variant="h5">{time}</Typography>
+
+        <button className="rounded-md " onClick={toggle}>
           <FontAwesomeIcon size="xl" icon={solid("xmark")} />
         </button>
       </div>

@@ -1,10 +1,5 @@
 import { useState, useEffect } from "react";
-import {
-  Navbar,
-  MobileNav,
-  IconButton,
-  Button,
-} from "@material-tailwind/react";
+import { Navbar, MobileNav, IconButton } from "@material-tailwind/react";
 import { LOCAL_STORAGE_TOKEN } from "../../constants";
 import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
 import { Link, useNavigate } from "react-router-dom";
@@ -103,9 +98,6 @@ export default function NavBar() {
               size="xl"
               icon={solid("arrow-right-from-bracket")}
             />
-          </div>
-          <div>
-            <Button className=" text-center w-full">출근하기</Button>
           </div>
         </div>
       </MobileNav>

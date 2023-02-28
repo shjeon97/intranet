@@ -99,6 +99,11 @@
             "date": 1677424368756,
             "name": "log/info/2023-02-27.info.log",
             "hash": "8a50504d3c0768ba88c636f9ee47b158e3926905aefc0378d8bcd7722f3b55e6"
+        },
+        {
+            "date": 1677534298110,
+            "name": "log/info/2023-02-28.info.log",
+            "hash": "040c4aa6984b39869f4abf7ae462fb37ac087af8b55d57cb4a5fcff997a029d1"
         }
     ],
     "hashType": "sha256"
