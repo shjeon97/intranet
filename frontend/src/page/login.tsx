@@ -44,8 +44,8 @@ export const Login = () => {
         localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
         authTokenVar(token);
         isLoggedInVar(true);
+        isSidebarOpenVar(true);
         navigate("/");
-        window.location.reload();
       } else if (error) {
         Toast.fire({
           icon: "error",

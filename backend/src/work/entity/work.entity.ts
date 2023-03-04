@@ -13,6 +13,7 @@ export class Work extends CoreEntity {
   @ManyToOne(() => User, { eager: true })
   user: User;
 
+  @Field(() => Number)
   @Column()
   @RelationId((work: Work) => work.user)
   userId: number;
@@ -21,9 +22,10 @@ export class Work extends CoreEntity {
   @ManyToOne(() => WorkStatus, { eager: true })
   workStatus: WorkStatus;
 
+  @Field(() => String)
   @Column()
   @RelationId((work: Work) => work.workStatus)
-  workStatusId: number;
+  workStatusName: string;
 
   @Field(() => String)
   @Column({ type: 'date' })

@@ -14,7 +14,7 @@ import {
   Switch,
   Typography,
 } from "@material-tailwind/react";
-import { useMe } from "../../hook/useMe";
+import { useMeQuery } from "../../hook/useMeQuery";
 import { EditUserInput, EditUserMutation, Role, Team } from "../../gql/graphql";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -37,7 +37,7 @@ interface IFormInput extends EditUserInput {
 }
 
 function Me() {
-  const { data, loading: meLoading, refetch } = useMe();
+  const { data, loading: meLoading, refetch } = useMeQuery();
   const [isChangePassword, setIsChangePassword] = useState(false);
   const {
     register,

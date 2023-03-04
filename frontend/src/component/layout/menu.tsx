@@ -2,11 +2,11 @@ import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Typography } from "@material-tailwind/react";
 import { Role } from "../../gql/graphql";
-import { useMe } from "../../hook/useMe";
+import { useMeQuery } from "../../hook/useMeQuery";
 import Loading from "../loading";
 
 const Menu = () => {
-  const { data, loading } = useMe();
+  const { data, loading } = useMeQuery();
 
   if (loading) {
     return <Loading />;
