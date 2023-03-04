@@ -29,11 +29,13 @@ export const useMeQuery = () => {
 
   return useQuery(ME_QUERY, {
     fetchPolicy: "network-only",
-    onError() {
-      localStorage.removeItem(LOCAL_STORAGE_TOKEN);
-      isLoggedInVar(false);
-      isSidebarOpenVar(false);
-      navigate("/login");
+    onError(error) {
+      if (error.graphQLErrors) {
+        localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+        isLoggedInVar(false);
+        isSidebarOpenVar(false);
+        navigate("/login");
+      }
     },
   });
 };

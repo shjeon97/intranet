@@ -1,13 +1,9 @@
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Typography } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import { FC } from "react";
 import Menu from "./menu";
 import useRealtimeClock from "../../hook/useRealTimeClock";
-import useCreateWorkMutation from "../../hook/useCreateWorkMutation";
-import { format } from "date-fns";
-import { useMeQuery } from "../../hook/useMeQuery";
-import Swal from "sweetalert2";
 import WorkCard from "../work/workCard";
 
 interface SidebarProps {
