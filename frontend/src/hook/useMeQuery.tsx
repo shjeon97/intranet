@@ -30,7 +30,7 @@ export const useMeQuery = () => {
   return useQuery(ME_QUERY, {
     fetchPolicy: "network-only",
     onError(error) {
-      console.log(error);
+      console.log(error.message);
 
       if (error.graphQLErrors) {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN);
