@@ -30,9 +30,7 @@ export const useMeQuery = () => {
   return useQuery(ME_QUERY, {
     fetchPolicy: "network-only",
     onError(error) {
-      console.log(error.message);
-
-      if (error.graphQLErrors) {
+      if (error.message !== "Forbidden resource") {
         localStorage.removeItem(LOCAL_STORAGE_TOKEN);
         isLoggedInVar(false);
         isSidebarOpenVar(false);

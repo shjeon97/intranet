@@ -46,6 +46,7 @@ function Me() {
   } = useForm<IFormInput>({ mode: "onChange" });
 
   const [editUser, { loading }] = useMutation(EDIT_USER_MUTATION, {
+    fetchPolicy: "network-only",
     onCompleted: (data: EditUserMutation) => {
       const {
         editUser: { ok, error },
