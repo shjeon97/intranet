@@ -14,7 +14,7 @@ import {
   Switch,
   Typography,
 } from "@material-tailwind/react";
-import { useMeQuery } from "../../hook/useMeQuery";
+import { useMeQuery } from "../../hook/query/useMeQuery";
 import { EditUserInput, EditUserMutation, Role, Team } from "../../gql/graphql";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";

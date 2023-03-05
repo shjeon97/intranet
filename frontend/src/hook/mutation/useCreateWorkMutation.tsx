@@ -1,8 +1,8 @@
 import { gql, useMutation } from "@apollo/client";
-import { CreateWorkInput } from "../gql/graphql";
+import { CreateWorkInput } from "../../gql/graphql";
 
 const CREATE_WORK_MUTATION = gql`
-  mutation CreateWork($input: CreateWorkInput!) {
+  mutation createWork($input: CreateWorkInput!) {
     createWork(input: $input) {
       ok
       error

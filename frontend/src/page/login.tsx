@@ -44,7 +44,7 @@ export const Login = () => {
         localStorage.setItem(LOCAL_STORAGE_TOKEN, token);
         authTokenVar(token);
         isLoggedInVar(true);
-        isSidebarOpenVar(true);
+        isSidebarOpenVar(window.innerWidth > 960);
         navigate("/");
       } else if (error) {
         Toast.fire({

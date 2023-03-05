@@ -124,6 +124,11 @@
             "date": 1677876383282,
             "name": "log/warn/2023-03-04.warn.log",
             "hash": "ae83a4776d25ce74b9e7592650ced34d10d319bfe885da37b13e511e71ad9a86"
+        },
+        {
+            "date": 1677981510536,
+            "name": "log/warn/2023-03-05.warn.log",
+            "hash": "2b2fa4a027e23975286599b32d01f0c67eb43c4edef8d7fd390a6d8f99b83a19"
         }
     ],
     "hashType": "sha256"

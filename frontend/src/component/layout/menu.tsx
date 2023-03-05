@@ -2,7 +2,7 @@ import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Typography } from "@material-tailwind/react";
 import { Role } from "../../gql/graphql";
-import { useMeQuery } from "../../hook/useMeQuery";
+import { useMeQuery } from "../../hook/query/useMeQuery";
 import Loading from "../loading";
 
 const Menu = () => {

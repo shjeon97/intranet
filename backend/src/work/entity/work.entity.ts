@@ -38,7 +38,7 @@ export class Work extends CoreEntity {
   @IsString()
   startTime?: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column({ type: 'time', nullable: true })
   @IsOptional()
   @IsString()

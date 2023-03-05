@@ -6,7 +6,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { useQuery, useReactiveVar } from "@apollo/client";
-import { ME_QUERY } from "../../hook/useMeQuery";
+import { ME_QUERY } from "../../hook/query/useMeQuery";
 import Menu from "./menu";
 
 export default function NavBar() {

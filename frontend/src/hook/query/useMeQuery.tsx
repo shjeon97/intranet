@@ -1,7 +1,7 @@
 import { gql, useQuery } from "@apollo/client";
 import { useNavigate } from "react-router-dom";
-import { isLoggedInVar, isSidebarOpenVar } from "../apollo";
-import { LOCAL_STORAGE_TOKEN } from "../constants";
+import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
+import { LOCAL_STORAGE_TOKEN } from "../../constants";
 
 export const ME_QUERY = gql`
   query me {
