@@ -17,6 +17,7 @@ import { Log } from './log/entity/log.entity';
 import { WorkModule } from './work/work.module';
 import { Work } from './work/entity/work.entity';
 import { WorkStatus } from './work/entity/work-status.entity';
+import { Rest } from './work/entity/rest.entity';
 
 @Module({
   imports: [
@@ -72,7 +73,7 @@ import { WorkStatus } from './work/entity/work-status.entity';
       // hot load 사용시 선언
       keepConnectionAlive: true,
       // 사용할 entity들 선언
-      entities: [User, Role, Team, Notice, Log, Work, WorkStatus],
+      entities: [User, Role, Team, Notice, Log, Work, WorkStatus, Rest],
     }),
     UserModule,
     CommonModule,

@@ -129,6 +129,16 @@
             "date": 1677981510536,
             "name": "log/warn/2023-03-05.warn.log",
             "hash": "2b2fa4a027e23975286599b32d01f0c67eb43c4edef8d7fd390a6d8f99b83a19"
+        },
+        {
+            "date": 1678059960477,
+            "name": "log/warn/2023-03-06.warn.log",
+            "hash": "de2168c40a3d9544f964b80e9784486ef3361adddb4324e03e2a74a0893c1b64"
+        },
+        {
+            "date": 1678116595035,
+            "name": "log/warn/2023-03-07.warn.log",
+            "hash": "fdf1a01495e0e320eeb8afb222e8d66f23f8daeac6d8e7ca74a6e17a00663c7f"
         }
     ],
     "hashType": "sha256"

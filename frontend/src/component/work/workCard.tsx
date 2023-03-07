@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import {
   Button,
   Card,
@@ -8,15 +8,25 @@ import {
   Chip,
   Typography,
 } from "@material-tailwind/react";
-import { differenceInHours, format } from "date-fns";
+import { format, formatDistanceToNowStrict } from "date-fns";
 import { useEffect } from "react";
 import Swal from "sweetalert2";
 import { WORK_STATUS_NAMES } from "../../constants";
+import { CreateRestMutation } from "../../gql/graphql";
 import useCreateWorkMutation from "../../hook/mutation/useCreateWorkMutation";
 import useEditWorkMutation from "../../hook/mutation/useEditWorkMutation";
 import { useMeQuery } from "../../hook/query/useMeQuery";
 import useRealtimeClock from "../../hook/useRealTimeClock";
 import { Toast } from "../../lib/sweetalert2/toast";
+
+export const CREATE_REST_MUTATION = gql`
+  mutation createRest($input: CreateRestInput!) {
+    createRest(input: $input) {
+      ok
+      error
+    }
+  }
+`;
 
 export const FIND_WORK_QUERY = gql`
   query findWork($input: FindWorkInput!) {
@@ -41,28 +51,54 @@ const WorkCard = () => {
   const time = useRealtimeClock();
   const { createWork, loading: createWorkLoading } = useCreateWorkMutation();
   const { editWork, loading: editWorkLoading } = useEditWorkMutation();
-  const { data } = useMeQuery();
+  const [createRest, { loading: createRestLoading }] = useMutation(
+    CREATE_REST_MUTATION,
+    {
+      onCompleted: (data: CreateRestMutation) => {
+        const {
+          createRest: { ok, error },
+        } = data;
+
+        if (ok) {
+          Toast.fire({
+            icon: "success",
+            title: `휴게 시작`,
+            position: "top-end",
+            timer: 1200,
+          });
+        } else if (error) {
+          Toast.fire({
+            icon: "error",
+            title: error,
+          });
+        }
+      },
+    }
+  );
+  const { data: meData } = useMeQuery();
   const [loadFindWorkQuery, { data: workData, refetch }] =
     useLazyQuery(FIND_WORK_QUERY);
 
   useEffect(() => {
-    if (data?.me?.id) {
+    if (meData?.me?.id) {
       loadFindWorkQuery({
         variables: {
           input: {
-            userId: data?.me?.id,
+            userId: meData?.me?.id,
             date: format(new Date(), "yyyy MM dd"),
           },
         },
       });
     }
-  }, [data?.me?.id, loadFindWorkQuery]);
+  }, [meData?.me?.id, loadFindWorkQuery]);
 
   const handleMemo = () => {
     Swal.fire({
       title: "근무노트",
       input: "textarea",
-      inputValue: workData?.findWork?.work?.memo,
+      inputValue: workData?.findWork?.work?.memo
+        ? workData?.findWork?.work?.memo
+        : "",
       confirmButtonColor: "#3085d6",
       cancelButtonColor: "#d33",
       confirmButtonText: "변경",
@@ -71,7 +107,7 @@ const WorkCard = () => {
     }).then(async (result) => {
       if (!editWorkLoading && result.isConfirmed) {
         const response = await editWork({
-          userId: data?.me?.id,
+          userId: meData?.me?.id,
           date: workData?.findWork?.work?.date,
           memo: result.value,
         });
@@ -87,9 +123,33 @@ const WorkCard = () => {
       }
     });
   };
+  const handleRest = () => {
+    Swal.fire({
+      title: "휴게 시작하기",
+      inputLabel: "사유 (빈값 가능)",
+      input: "text",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "휴게 시작",
+      showCancelButton: true,
+      cancelButtonText: "취소",
+    }).then(async (result) => {
+      if (!createRestLoading && result.isConfirmed) {
+        await createRest({
+          variables: {
+            input: {
+              workId: workData?.findWork?.work?.id,
+              startTime: format(new Date(), "HH:mm:ss"),
+              reason: result.value,
+            },
+          },
+        });
+      }
+    });
+  };
 
   const handleStartWork = async () => {
-    if (!createWorkLoading && data) {
+    if (!createWorkLoading && meData) {
       if (
         Number(format(new Date(), "HH")) >= 10 &&
         Number(format(new Date(), "mm")) > 0
@@ -109,7 +169,7 @@ const WorkCard = () => {
               date: format(new Date(), "yyyy MM dd"),
               startTime: format(new Date(), "HH:mm:ss"),
               workStatusName: WORK_STATUS_NAMES.Late,
-              userId: data.me.id,
+              userId: meData.me.id,
               memo: `지각 사유 : ${result.value}`,
             });
             if (response.ok) {
@@ -135,7 +195,7 @@ const WorkCard = () => {
               date: format(new Date(), "yyyy MM dd"),
               startTime: format(new Date(), "HH:mm:ss"),
               workStatusName: WORK_STATUS_NAMES.OnSiteWork,
-              userId: data.me.id,
+              userId: meData.me.id,
             });
             if (response.ok) {
               refetch();
@@ -145,7 +205,7 @@ const WorkCard = () => {
               date: format(new Date(), "yyyy MM dd"),
               startTime: "08:00:00",
               workStatusName: WORK_STATUS_NAMES.InSiteWork,
-              userId: data.me.id,
+              userId: meData.me.id,
             });
             if (response.ok) {
               refetch();
@@ -157,7 +217,7 @@ const WorkCard = () => {
           date: format(new Date(), "yyyy MM dd"),
           startTime: format(new Date(), "HH:mm:ss"),
           workStatusName: WORK_STATUS_NAMES.InSiteWork,
-          userId: data.me.id,
+          userId: meData.me.id,
         });
         if (response.ok) {
           refetch();
@@ -168,9 +228,74 @@ const WorkCard = () => {
 
   const handleEndWork = async () => {
     if (!editWorkLoading) {
+      // 최소 근무시간 미달
       if (
-        differenceInHours(workData?.findWork?.work?.startTime, new Date()) <= 10
+        parseInt(
+          formatDistanceToNowStrict(
+            new Date(
+              `${format(new Date(), "yyyy MM dd")} ${
+                workData?.findWork?.work?.startTime
+              }`
+            ),
+            { unit: "minute" }
+          )
+        ) < 540
       ) {
+        Toast.fire({
+          icon: "error",
+          title: "최소 근무시간 미달입니다",
+          timer: 1200,
+          position: "top-end",
+        });
+      }
+      // 연장근무
+      else if (
+        parseInt(
+          formatDistanceToNowStrict(
+            new Date(
+              `${format(new Date(), "yyyy MM dd")} ${
+                workData?.findWork?.work?.startTime
+              }`
+            ),
+            { unit: "minute" }
+          )
+        ) > 660
+      ) {
+        Swal.fire({
+          html: "연장근무 <br/> 사유 입력해 주세요",
+          icon: "info",
+          input: "text",
+          confirmButtonColor: "#3085d6",
+          cancelButtonColor: "#d33",
+          confirmButtonText: "확인",
+          showCancelButton: true,
+          cancelButtonText: "취소",
+        }).then(async (result) => {
+          if (result.isConfirmed) {
+            const response = await editWork({
+              date: format(new Date(), "yyyy MM dd"),
+              userId: meData.me.id,
+              endTime: format(new Date(), "HH:mm:ss"),
+              workStatusName: WORK_STATUS_NAMES.LeaveWork,
+              overtimeReason: `${result.value}`,
+            });
+            if (response.ok) {
+              refetch();
+            }
+          }
+        });
+      }
+      // 정상퇴근
+      else {
+        const response = await editWork({
+          date: format(new Date(), "yyyy MM dd"),
+          userId: meData.me.id,
+          endTime: format(new Date(), "HH:mm:ss"),
+          workStatusName: WORK_STATUS_NAMES.LeaveWork,
+        });
+        if (response.ok) {
+          refetch();
+        }
       }
     }
   };
@@ -180,7 +305,7 @@ const WorkCard = () => {
       <CardHeader
         color="blue"
         floated={false}
-        className="grid h-14 place-items-center"
+        className="grid h-20 lg:h-14 place-items-center"
       >
         <Typography variant="h5" color="white">
           오늘근무
@@ -192,7 +317,7 @@ const WorkCard = () => {
         </Typography>
         {workData?.findWork?.work?.workStatus && (
           <>
-            <div className="flex flex-wrap justify-between gap-2 w-full pt-2">
+            <div className="flex flex-wrap justify-between lg:gap-1 gap-2 w-full pt-2">
               <Chip
                 color={workData?.findWork?.work?.workStatus?.color}
                 value={workData?.findWork?.work?.workStatus?.name}
@@ -200,8 +325,13 @@ const WorkCard = () => {
               <div className=" cursor-pointer" onClick={() => handleMemo()}>
                 <Chip value="근무노트" />
               </div>
+              {workData?.findWork?.work?.approvalUserId ? (
+                <Chip color="green" value="승인" />
+              ) : (
+                <Chip color="blue-gray" value="미승인" />
+              )}
             </div>
-            <div className="flex flex-wrap justify-left gap-2 w-full pt-2">
+            <div className="flex flex-wrap justify-left lg:justify-between gap-2  w-full pt-2">
               <Chip
                 color="blue-gray"
                 value={workData?.findWork?.work?.startTime}
@@ -219,28 +349,42 @@ const WorkCard = () => {
           </>
         )}
       </CardBody>
-      <CardFooter>
-        {workData?.findWork?.work?.workStatus ? (
-          <div className="w-full mt-3">
+      {workData?.findWork?.work?.workStatus &&
+      workData?.findWork?.work?.workStatus?.name !==
+        WORK_STATUS_NAMES.LeaveWork ? (
+        <CardFooter>
+          <div className=" grid grid-cols-12 w-full lg:gap-1 gap-3">
+            <Button
+              onClick={() => handleRest()}
+              size="lg"
+              className=" col-span-5 text-center"
+            >
+              휴게
+            </Button>
             <Button
               color="green"
               onClick={() => handleEndWork()}
               size="lg"
-              className=" text-center w-full"
+              className="col-span-7  text-center w-full"
             >
               퇴근하기
             </Button>
           </div>
-        ) : (
-          <Button
-            onClick={() => handleStartWork()}
-            size="lg"
-            className=" text-center w-full"
-          >
-            출근하기
-          </Button>
-        )}
-      </CardFooter>
+        </CardFooter>
+      ) : (
+        workData?.findWork?.work?.workStatus?.name !==
+          WORK_STATUS_NAMES.LeaveWork && (
+          <CardFooter>
+            <Button
+              onClick={() => handleStartWork()}
+              size="lg"
+              className=" text-center w-full"
+            >
+              출근하기
+            </Button>
+          </CardFooter>
+        )
+      )}
     </Card>
   );
 };

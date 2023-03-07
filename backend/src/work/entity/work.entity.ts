@@ -5,6 +5,13 @@ import { User } from 'src/user/entity/user.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { WorkStatus } from './work-status.entity';
 
+@InputType('WorkStatusListInputType', { isAbstract: true })
+@ObjectType()
+export class WorkStatusList {
+  @Field(() => String)
+  workStatus: WorkStatus;
+}
+
 @InputType('WorkInputType', { isAbstract: true })
 @ObjectType()
 @Entity()
@@ -32,7 +39,7 @@ export class Work extends CoreEntity {
   @IsString()
   date: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column({ type: 'time', nullable: true })
   @IsOptional()
   @IsString()
@@ -44,21 +51,25 @@ export class Work extends CoreEntity {
   @IsString()
   endTime?: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column({ nullable: true })
   @IsOptional()
   @IsString()
   memo?: string;
 
-  @Field(() => String)
+  @Field(() => String, { nullable: true })
   @Column({ nullable: true })
   @IsOptional()
   @IsString()
   overtimeReason?: string;
 
-  @Field(() => Number)
+  @Field(() => Number, { nullable: true })
   @Column({ nullable: true })
   @IsOptional()
   @IsNumber()
   approvalUserId?: number;
+
+  @Field(() => [WorkStatusList], { nullable: true })
+  @Column({ type: 'json', nullable: true })
+  workStatusList?: WorkStatusList[];
 }

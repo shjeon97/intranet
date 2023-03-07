@@ -14,6 +14,8 @@ import {
 
 export enum LogType {
   Login = 'Login',
+  startWork = '근무시작',
+  endWork = '근무종료',
 }
 registerEnumType(LogType, { name: 'LogType' });
 

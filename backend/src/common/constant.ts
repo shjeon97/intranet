@@ -8,6 +8,7 @@ export const WORK_STATUS_NAMES = {
   InSiteWork: '정상출근',
   OnSiteWork: '현장출근',
   Late: '지각',
+  LeaveWork: '퇴근',
 } as const;
 type WORK_STATUS_NAMES =
   (typeof WORK_STATUS_NAMES)[keyof typeof WORK_STATUS_NAMES];

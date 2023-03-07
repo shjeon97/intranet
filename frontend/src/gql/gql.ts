@@ -13,7 +13,8 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
  * Therefore it is highly recommended to use the babel-plugin for production.
  */
 const documents = {
-    "\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        startTime\n        endTime\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n": types.FindWorkDocument,
+    "\n  mutation createRest($input: CreateRestInput!) {\n    createRest(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateRestDocument,
+    "\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        startTime\n        endTime\n        date\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n": types.FindWorkDocument,
     "\n  mutation createWork($input: CreateWorkInput!) {\n    createWork(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateWorkDocument,
     "\n  mutation editWork($input: EditWorkInput!) {\n    editWork(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditWorkDocument,
     "\n  query me {\n    me {\n      id\n      email\n      name\n      phone\n      position\n      birthday\n      startDate\n      status\n      roles {\n        name\n      }\n      teams {\n        name\n      }\n    }\n  }\n": types.MeDocument,
@@ -39,7 +40,11 @@ export function graphql(source: string): unknown;
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        startTime\n        endTime\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n"): (typeof documents)["\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        startTime\n        endTime\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  mutation createRest($input: CreateRestInput!) {\n    createRest(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation createRest($input: CreateRestInput!) {\n    createRest(input: $input) {\n      ok\n      error\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        startTime\n        endTime\n        date\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n"): (typeof documents)["\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        startTime\n        endTime\n        date\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
