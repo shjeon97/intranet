@@ -10,10 +10,13 @@ import {
 } from "@material-tailwind/react";
 import { format, formatDistanceToNowStrict } from "date-fns";
 import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { WORK_STATUS_NAMES } from "../../constants";
-import { CreateRestMutation } from "../../gql/graphql";
+import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
+import { LOCAL_STORAGE_TOKEN, WORK_STATUS_NAMES } from "../../constants";
+import { CreateRestMutation, EndWorkMutation } from "../../gql/graphql";
 import useCreateWorkMutation from "../../hook/mutation/useCreateWorkMutation";
+import useEditRestMutation from "../../hook/mutation/useEditRestMutation";
 import useEditWorkMutation from "../../hook/mutation/useEditWorkMutation";
 import { useMeQuery } from "../../hook/query/useMeQuery";
 import useRealtimeClock from "../../hook/useRealTimeClock";
@@ -28,12 +31,22 @@ export const CREATE_REST_MUTATION = gql`
   }
 `;
 
+export const END_WORK_MUTATION = gql`
+  mutation endWork($input: EndWorkInput!) {
+    endWork(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 export const FIND_WORK_QUERY = gql`
   query findWork($input: FindWorkInput!) {
     findWork(input: $input) {
       ok
       error
       work {
+        id
         startTime
         endTime
         date
@@ -47,10 +60,55 @@ export const FIND_WORK_QUERY = gql`
   }
 `;
 
+export const FIND_RESTING_QUERY = gql`
+  query findResting($input: FindRestingInput!) {
+    findResting(input: $input) {
+      ok
+      error
+      rest {
+        id
+        startTime
+        reason
+      }
+    }
+  }
+`;
+
 const WorkCard = () => {
+  const navigate = useNavigate();
   const time = useRealtimeClock();
   const { createWork, loading: createWorkLoading } = useCreateWorkMutation();
   const { editWork, loading: editWorkLoading } = useEditWorkMutation();
+  const { editRest, loading: editRestLoading } = useEditRestMutation();
+  const [endWork, { loading: endWorkLoading }] = useMutation(
+    END_WORK_MUTATION,
+    {
+      onCompleted: async (data: EndWorkMutation) => {
+        const {
+          endWork: { ok, error },
+        } = data;
+
+        if (ok) {
+          await Toast.fire({
+            icon: "success",
+            title: `정상적으로 퇴근처리 되었습니다`,
+            position: "top-end",
+            timer: 1200,
+          });
+          onClickHandlerLogout();
+          workRefetch();
+        } else if (error) {
+          Toast.fire({
+            icon: "error",
+            position: "top-end",
+            title: error,
+            timer: 1200,
+          });
+        }
+      },
+    }
+  );
+
   const [createRest, { loading: createRestLoading }] = useMutation(
     CREATE_REST_MUTATION,
     {
@@ -76,8 +134,17 @@ const WorkCard = () => {
     }
   );
   const { data: meData } = useMeQuery();
-  const [loadFindWorkQuery, { data: workData, refetch }] =
+  const [loadFindWorkQuery, { data: workData, refetch: workRefetch }] =
     useLazyQuery(FIND_WORK_QUERY);
+  const [loadFindRestingQuery, { data: restingData, refetch: restingRefetch }] =
+    useLazyQuery(FIND_RESTING_QUERY);
+
+  const onClickHandlerLogout = () => {
+    localStorage.removeItem(LOCAL_STORAGE_TOKEN);
+    isLoggedInVar(false);
+    isSidebarOpenVar(false);
+    navigate("/login");
+  };
 
   useEffect(() => {
     if (meData?.me?.id) {
@@ -91,6 +158,18 @@ const WorkCard = () => {
       });
     }
   }, [meData?.me?.id, loadFindWorkQuery]);
+
+  useEffect(() => {
+    if (workData?.findWork?.work?.id) {
+      loadFindRestingQuery({
+        variables: {
+          input: {
+            workId: workData?.findWork?.work?.id,
+          },
+        },
+      });
+    }
+  }, [workData?.findWork?.work?.id, loadFindRestingQuery]);
 
   const handleMemo = () => {
     Swal.fire({
@@ -112,7 +191,7 @@ const WorkCard = () => {
           memo: result.value,
         });
         if (response.ok) {
-          refetch();
+          workRefetch();
           Toast.fire({
             icon: "success",
             title: "근무노트 수정완료",
@@ -123,7 +202,7 @@ const WorkCard = () => {
       }
     });
   };
-  const handleRest = () => {
+  const handleStartRest = () => {
     Swal.fire({
       title: "휴게 시작하기",
       inputLabel: "사유 (빈값 가능)",
@@ -144,6 +223,33 @@ const WorkCard = () => {
             },
           },
         });
+        restingRefetch();
+      }
+    });
+  };
+  const handleEndRest = () => {
+    Swal.fire({
+      title: "휴게 종료하기",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "휴게 종료",
+      showCancelButton: true,
+      cancelButtonText: "취소",
+    }).then(async (result) => {
+      if (!editRestLoading && result.isConfirmed) {
+        const response = await editRest({
+          id: restingData?.findResting?.rest?.id,
+          endTime: format(new Date(), "HH:mm:ss"),
+        });
+        if (response.ok) {
+          restingRefetch();
+          Toast.fire({
+            icon: "success",
+            title: "휴게종료",
+            timer: 1000,
+            position: "top-end",
+          });
+        }
       }
     });
   };
@@ -173,7 +279,7 @@ const WorkCard = () => {
               memo: `지각 사유 : ${result.value}`,
             });
             if (response.ok) {
-              refetch();
+              workRefetch();
             }
           }
         });
@@ -198,7 +304,7 @@ const WorkCard = () => {
               userId: meData.me.id,
             });
             if (response.ok) {
-              refetch();
+              workRefetch();
             }
           } else if (result.isDenied) {
             const response = await createWork({
@@ -208,7 +314,7 @@ const WorkCard = () => {
               userId: meData.me.id,
             });
             if (response.ok) {
-              refetch();
+              workRefetch();
             }
           }
         });
@@ -220,14 +326,14 @@ const WorkCard = () => {
           userId: meData.me.id,
         });
         if (response.ok) {
-          refetch();
+          workRefetch();
         }
       }
     }
   };
 
   const handleEndWork = async () => {
-    if (!editWorkLoading) {
+    if (!endWorkLoading) {
       // 최소 근무시간 미달
       if (
         parseInt(
@@ -239,7 +345,8 @@ const WorkCard = () => {
             ),
             { unit: "minute" }
           )
-        ) < 540
+        ) < 540 &&
+        workData?.findWork?.work?.workStatus?.name !== WORK_STATUS_NAMES.Late
       ) {
         Toast.fire({
           icon: "error",
@@ -272,30 +379,40 @@ const WorkCard = () => {
           cancelButtonText: "취소",
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const response = await editWork({
-              date: format(new Date(), "yyyy MM dd"),
-              userId: meData.me.id,
-              endTime: format(new Date(), "HH:mm:ss"),
-              workStatusName: WORK_STATUS_NAMES.LeaveWork,
-              overtimeReason: `${result.value}`,
+            endWork({
+              variables: {
+                input: {
+                  userId: meData.me.id,
+                  date: format(new Date(), "yyyy MM dd"),
+                  overtimeReason: `${result.value}`,
+                },
+              },
             });
-            if (response.ok) {
-              refetch();
-            }
           }
+        });
+      }
+      // 지각
+      else if (
+        workData?.findWork?.work?.workStatus?.name === WORK_STATUS_NAMES.Late &&
+        Number(format(new Date(), "HH")) < 19
+      ) {
+        Toast.fire({
+          icon: "error",
+          title: "최소 근무시간 미달입니다1",
+          timer: 1200,
+          position: "top-end",
         });
       }
       // 정상퇴근
       else {
-        const response = await editWork({
-          date: format(new Date(), "yyyy MM dd"),
-          userId: meData.me.id,
-          endTime: format(new Date(), "HH:mm:ss"),
-          workStatusName: WORK_STATUS_NAMES.LeaveWork,
+        endWork({
+          variables: {
+            input: {
+              userId: meData.me.id,
+              date: format(new Date(), "yyyy MM dd"),
+            },
+          },
         });
-        if (response.ok) {
-          refetch();
-        }
       }
     }
   };
@@ -354,18 +471,26 @@ const WorkCard = () => {
         WORK_STATUS_NAMES.LeaveWork ? (
         <CardFooter>
           <div className=" grid grid-cols-12 w-full lg:gap-1 gap-3">
-            <Button
-              onClick={() => handleRest()}
-              size="lg"
-              className=" col-span-5 text-center"
-            >
-              휴게
-            </Button>
+            {restingData?.findResting?.ok ? (
+              <Button
+                onClick={() => handleEndRest()}
+                className=" col-span-6 text-center"
+              >
+                휴게종료
+              </Button>
+            ) : (
+              <Button
+                onClick={() => handleStartRest()}
+                className=" col-span-6 text-center"
+              >
+                휴게시작
+              </Button>
+            )}
+
             <Button
               color="green"
               onClick={() => handleEndWork()}
-              size="lg"
-              className="col-span-7  text-center w-full"
+              className="col-span-6 text-center w-full"
             >
               퇴근하기
             </Button>

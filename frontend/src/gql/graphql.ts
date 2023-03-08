@@ -51,6 +51,15 @@ export type CreateWorkInput = {
   workStatusName?: InputMaybe<Scalars['String']>;
 };
 
+export type EditRestInput = {
+  endTime?: InputMaybe<Scalars['String']>;
+  id?: InputMaybe<Scalars['Float']>;
+  reason?: InputMaybe<Scalars['String']>;
+  startTime?: InputMaybe<Scalars['String']>;
+  work?: InputMaybe<WorkInputType>;
+  workId?: InputMaybe<Scalars['Float']>;
+};
+
 export type EditUserInput = {
   birthday?: InputMaybe<Scalars['String']>;
   changePassword?: InputMaybe<Scalars['String']>;
@@ -68,13 +77,28 @@ export type EditWorkInput = {
   date?: InputMaybe<Scalars['String']>;
   endTime?: InputMaybe<Scalars['String']>;
   memo?: InputMaybe<Scalars['String']>;
-  overtimeReason?: InputMaybe<Scalars['String']>;
   startTime?: InputMaybe<Scalars['String']>;
   user?: InputMaybe<UserInputType>;
   userId?: InputMaybe<Scalars['Float']>;
   workStatus?: InputMaybe<WorkStatusInputType>;
   workStatusList?: InputMaybe<Array<WorkStatusListInputType>>;
   workStatusName?: InputMaybe<Scalars['String']>;
+};
+
+export type EndWorkInput = {
+  date?: InputMaybe<Scalars['String']>;
+  userId?: InputMaybe<Scalars['Float']>;
+};
+
+export type FindRestingInput = {
+  workId: Scalars['Float'];
+};
+
+export type FindRestingOutput = {
+  __typename?: 'FindRestingOutput';
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+  rest?: Maybe<Rest>;
 };
 
 export type FindWorkInput = {
@@ -124,8 +148,10 @@ export type Mutation = {
   createRest: CoreOutput;
   createUser: CoreOutput;
   createWork: CoreOutput;
+  editRest: CoreOutput;
   editUser: CoreOutput;
   editWork: CoreOutput;
+  endWork: CoreOutput;
   login: LoginOutput;
 };
 
@@ -145,6 +171,11 @@ export type MutationCreateWorkArgs = {
 };
 
 
+export type MutationEditRestArgs = {
+  input: EditRestInput;
+};
+
+
 export type MutationEditUserArgs = {
   input: EditUserInput;
 };
@@ -155,16 +186,27 @@ export type MutationEditWorkArgs = {
 };
 
 
+export type MutationEndWorkArgs = {
+  input: EndWorkInput;
+};
+
+
 export type MutationLoginArgs = {
   input: LoginInput;
 };
 
 export type Query = {
   __typename?: 'Query';
+  findResting: FindRestingOutput;
   findWork: FindWorkOutput;
   getUser: GetUserOutput;
   getUsers: GetUsersOutput;
   me: User;
+};
+
+
+export type QueryFindRestingArgs = {
+  input: FindRestingInput;
 };
 
 
@@ -175,6 +217,18 @@ export type QueryFindWorkArgs = {
 
 export type QueryGetUserArgs = {
   input: GetUserInput;
+};
+
+export type Rest = {
+  __typename?: 'Rest';
+  createdAt: Scalars['DateTime'];
+  endTime?: Maybe<Scalars['String']>;
+  id: Scalars['Float'];
+  reason?: Maybe<Scalars['String']>;
+  startTime?: Maybe<Scalars['String']>;
+  updatedAt: Scalars['DateTime'];
+  work: Work;
+  workId: Scalars['Float'];
 };
 
 export type Role = {
@@ -263,6 +317,20 @@ export type Work = {
   workStatusName: Scalars['String'];
 };
 
+export type WorkInputType = {
+  approvalUserId?: InputMaybe<Scalars['Float']>;
+  date: Scalars['String'];
+  endTime?: InputMaybe<Scalars['String']>;
+  memo?: InputMaybe<Scalars['String']>;
+  overtimeReason?: InputMaybe<Scalars['String']>;
+  startTime?: InputMaybe<Scalars['String']>;
+  user: UserInputType;
+  userId: Scalars['Float'];
+  workStatus: WorkStatusInputType;
+  workStatusList?: InputMaybe<Array<WorkStatusListInputType>>;
+  workStatusName: Scalars['String'];
+};
+
 export type WorkStatus = {
   __typename?: 'WorkStatus';
   color: Scalars['String'];
@@ -290,12 +358,26 @@ export type CreateRestMutationVariables = Exact<{
 
 export type CreateRestMutation = { __typename?: 'Mutation', createRest: { __typename?: 'CoreOutput', ok: boolean, error?: string | null } };
 
+export type EndWorkMutationVariables = Exact<{
+  input: EndWorkInput;
+}>;
+
+
+export type EndWorkMutation = { __typename?: 'Mutation', endWork: { __typename?: 'CoreOutput', ok: boolean, error?: string | null } };
+
 export type FindWorkQueryVariables = Exact<{
   input: FindWorkInput;
 }>;
 
 
-export type FindWorkQuery = { __typename?: 'Query', findWork: { __typename?: 'FindWorkOutput', ok: boolean, error?: string | null, work?: { __typename?: 'Work', startTime?: string | null, endTime?: string | null, date: string, memo?: string | null, workStatus: { __typename?: 'WorkStatus', name: string, color: string } } | null } };
+export type FindWorkQuery = { __typename?: 'Query', findWork: { __typename?: 'FindWorkOutput', ok: boolean, error?: string | null, work?: { __typename?: 'Work', id: number, startTime?: string | null, endTime?: string | null, date: string, memo?: string | null, workStatus: { __typename?: 'WorkStatus', name: string, color: string } } | null } };
+
+export type FindRestingQueryVariables = Exact<{
+  input: FindRestingInput;
+}>;
+
+
+export type FindRestingQuery = { __typename?: 'Query', findResting: { __typename?: 'FindRestingOutput', ok: boolean, error?: string | null, rest?: { __typename?: 'Rest', id: number, startTime?: string | null, reason?: string | null } | null } };
 
 export type CreateWorkMutationVariables = Exact<{
   input: CreateWorkInput;
@@ -303,6 +385,13 @@ export type CreateWorkMutationVariables = Exact<{
 
 
 export type CreateWorkMutation = { __typename?: 'Mutation', createWork: { __typename?: 'CoreOutput', ok: boolean, error?: string | null } };
+
+export type EditRestMutationVariables = Exact<{
+  input: EditRestInput;
+}>;
+
+
+export type EditRestMutation = { __typename?: 'Mutation', editRest: { __typename?: 'CoreOutput', ok: boolean, error?: string | null } };
 
 export type EditWorkMutationVariables = Exact<{
   input: EditWorkInput;
@@ -339,8 +428,11 @@ export type EditUserMutation = { __typename?: 'Mutation', editUser: { __typename
 
 
 export const CreateRestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createRest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateRestInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createRest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateRestMutation, CreateRestMutationVariables>;
-export const FindWorkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"findWork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FindWorkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findWork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"workStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}},{"kind":"Field","name":{"kind":"Name","value":"memo"}}]}}]}}]}}]} as unknown as DocumentNode<FindWorkQuery, FindWorkQueryVariables>;
+export const EndWorkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"endWork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EndWorkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"endWork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<EndWorkMutation, EndWorkMutationVariables>;
+export const FindWorkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"findWork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FindWorkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findWork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"work"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"workStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}},{"kind":"Field","name":{"kind":"Name","value":"memo"}}]}}]}}]}}]} as unknown as DocumentNode<FindWorkQuery, FindWorkQueryVariables>;
+export const FindRestingDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"findResting"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"FindRestingInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"findResting"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"rest"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}}]}}]}}]}}]} as unknown as DocumentNode<FindRestingQuery, FindRestingQueryVariables>;
 export const CreateWorkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createWork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateWorkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createWork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateWorkMutation, CreateWorkMutationVariables>;
+export const EditRestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"editRest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditRestInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"editRest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<EditRestMutation, EditRestMutationVariables>;
 export const EditWorkDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"editWork"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditWorkInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"editWork"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<EditWorkMutation, EditWorkMutationVariables>;
 export const MeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"birthday"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"roles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"teams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
 export const CreateUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateUserMutation, CreateUserMutationVariables>;

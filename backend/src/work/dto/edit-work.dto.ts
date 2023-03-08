@@ -3,5 +3,5 @@ import { Work } from '../entity/work.entity';
 
 @InputType()
 export class EditWorkInput extends PartialType(
-  OmitType(Work, ['id', 'createdAt', 'updatedAt']),
+  OmitType(Work, ['id', 'createdAt', 'updatedAt', 'overtimeReason']),
 ) {}

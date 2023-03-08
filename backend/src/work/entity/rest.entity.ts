@@ -9,7 +9,7 @@ import { Work } from './work.entity';
 @Entity()
 export class Rest extends CoreEntity {
   @Field(() => Work)
-  @ManyToOne(() => Work, { eager: true })
+  @ManyToOne(() => Work, { eager: true, onDelete: 'CASCADE' })
   work: Work;
 
   @Field(() => Number)

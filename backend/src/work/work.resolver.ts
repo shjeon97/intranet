@@ -2,7 +2,10 @@ import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { CreateRestInput } from './dto/create-rest.dto';
 import { CreateWorkInput } from './dto/create-work.dto';
+import { EditRestInput } from './dto/edit-rest.dto';
 import { EditWorkInput } from './dto/edit-work.dto';
+import { EndWorkInput } from './dto/end-work.dto';
+import { FindRestingInput, FindRestingOutput } from './dto/find-resting.dto';
 import { FindWorkInput, FindWorkOutput } from './dto/find-work.dto';
 import { RestService, WorkService } from './work.service';
 
@@ -26,6 +29,13 @@ export class WorkResolver {
   }
 
   @Mutation(() => CoreOutput)
+  async endWork(
+    @Args('input') endWorkInput: EndWorkInput,
+  ): Promise<CoreOutput> {
+    return this.workService.endWork(endWorkInput);
+  }
+
+  @Mutation(() => CoreOutput)
   async editWork(
     @Args('input') editWorkInput: EditWorkInput,
   ): Promise<CoreOutput> {
@@ -42,5 +52,19 @@ export class RestResolver {
     @Args('input') createRestInput: CreateRestInput,
   ): Promise<CoreOutput> {
     return this.restService.createRest(createRestInput);
+  }
+
+  @Query(() => FindRestingOutput)
+  async findResting(
+    @Args('input') findRestingInput: FindRestingInput,
+  ): Promise<FindRestingOutput> {
+    return this.restService.findResting(findRestingInput);
+  }
+
+  @Mutation(() => CoreOutput)
+  async editRest(
+    @Args('input') editRestInput: EditRestInput,
+  ): Promise<CoreOutput> {
+    return this.restService.editRest(editRestInput);
   }
 }
