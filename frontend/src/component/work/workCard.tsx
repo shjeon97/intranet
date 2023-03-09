@@ -1,4 +1,6 @@
 import { gql, useLazyQuery, useMutation } from "@apollo/client";
+import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Button,
   Card,
@@ -14,9 +16,12 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
 import { LOCAL_STORAGE_TOKEN, WORK_STATUS_NAMES } from "../../constants";
-import { CreateRestMutation, EndWorkMutation } from "../../gql/graphql";
+import {
+  CreateRestMutation,
+  EndRestMutation,
+  EndWorkMutation,
+} from "../../gql/graphql";
 import useCreateWorkMutation from "../../hook/mutation/useCreateWorkMutation";
-import useEditRestMutation from "../../hook/mutation/useEditRestMutation";
 import useEditWorkMutation from "../../hook/mutation/useEditWorkMutation";
 import { useMeQuery } from "../../hook/query/useMeQuery";
 import useRealtimeClock from "../../hook/useRealTimeClock";
@@ -34,6 +39,15 @@ export const CREATE_REST_MUTATION = gql`
 export const END_WORK_MUTATION = gql`
   mutation endWork($input: EndWorkInput!) {
     endWork(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
+export const END_REST_MUTATION = gql`
+  mutation endRest($input: EndRestInput!) {
+    endRest(input: $input) {
       ok
       error
     }
@@ -79,7 +93,22 @@ const WorkCard = () => {
   const time = useRealtimeClock();
   const { createWork, loading: createWorkLoading } = useCreateWorkMutation();
   const { editWork, loading: editWorkLoading } = useEditWorkMutation();
-  const { editRest, loading: editRestLoading } = useEditRestMutation();
+  const [endRest, { loading: endRestLoading }] = useMutation(
+    END_REST_MUTATION,
+    {
+      onCompleted: (data: EndRestMutation) => {
+        if (data?.endRest.ok) {
+          restingRefetch();
+          Toast.fire({
+            icon: "success",
+            title: "휴게종료",
+            timer: 1000,
+            position: "top-end",
+          });
+        }
+      },
+    }
+  );
   const [endWork, { loading: endWorkLoading }] = useMutation(
     END_WORK_MUTATION,
     {
@@ -236,20 +265,14 @@ const WorkCard = () => {
       showCancelButton: true,
       cancelButtonText: "취소",
     }).then(async (result) => {
-      if (!editRestLoading && result.isConfirmed) {
-        const response = await editRest({
-          id: restingData?.findResting?.rest?.id,
-          endTime: format(new Date(), "HH:mm:ss"),
+      if (!endRestLoading && result.isConfirmed) {
+        endRest({
+          variables: {
+            input: {
+              id: restingData?.findResting?.rest?.id,
+            },
+          },
         });
-        if (response.ok) {
-          restingRefetch();
-          Toast.fire({
-            icon: "success",
-            title: "휴게종료",
-            timer: 1000,
-            position: "top-end",
-          });
-        }
       }
     });
   };
@@ -440,13 +463,17 @@ const WorkCard = () => {
                 value={workData?.findWork?.work?.workStatus?.name}
               />
               <div className=" cursor-pointer" onClick={() => handleMemo()}>
-                <Chip value="근무노트" />
+                <Chip
+                  value="근무노트"
+                  icon={
+                    <FontAwesomeIcon
+                      className="ml-1"
+                      fontSize={19}
+                      icon={solid("note-sticky")}
+                    />
+                  }
+                />
               </div>
-              {workData?.findWork?.work?.approvalUserId ? (
-                <Chip color="green" value="승인" />
-              ) : (
-                <Chip color="blue-gray" value="미승인" />
-              )}
             </div>
             <div className="flex flex-wrap justify-left lg:justify-between gap-2  w-full pt-2">
               <Chip
@@ -459,6 +486,8 @@ const WorkCard = () => {
                 value={
                   workData?.findWork?.work?.endTime
                     ? workData?.findWork?.work?.endTime
+                    : restingData?.findResting?.ok
+                    ? "휴게중..."
                     : "근무중..."
                 }
               />

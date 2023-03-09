@@ -1,6 +1,7 @@
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Typography } from "@material-tailwind/react";
+import { Link } from "react-router-dom";
 import { Role } from "../../gql/graphql";
 import { useMeQuery } from "../../hook/query/useMeQuery";
 import Loading from "../loading";
@@ -23,19 +24,21 @@ const Menu = () => {
         <FontAwesomeIcon size="xl" icon={solid("bullhorn")} className="mr-2" />
         공지사항
       </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <FontAwesomeIcon
-          size="xl"
-          icon={solid("clock-rotate-left")}
-          className="mr-2"
-        />
-        출퇴근기록
-      </Typography>
+      <Link to={"/work-record"}>
+        <Typography
+          as="li"
+          variant="small"
+          color="blue-gray"
+          className="p-1 font-normal"
+        >
+          <FontAwesomeIcon
+            size="xl"
+            icon={solid("clock-rotate-left")}
+            className="mr-2"
+          />
+          출퇴근기록
+        </Typography>
+      </Link>
       <Typography
         as="li"
         variant="small"

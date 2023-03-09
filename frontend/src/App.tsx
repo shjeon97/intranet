@@ -8,6 +8,7 @@ import { Login } from "./page/login";
 import { Main } from "./page/main";
 import Sidebar from "./component/layout/sidebar";
 import Me from "./page/user/me";
+import WorkRecord from "./page/work/workRecord";
 
 function App() {
   const pathname = window.location.href;
@@ -40,6 +41,7 @@ function App() {
               <>
                 <Route path="/" element={<Main />} />
                 <Route path="/me" element={<Me />} />
+                <Route path="/work-record" element={<WorkRecord />} />
               </>
             ) : (
               <>

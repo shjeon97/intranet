@@ -8,7 +8,7 @@ import { WorkStatus } from './work-status.entity';
 @InputType('WorkStatusListInputType', { isAbstract: true })
 @ObjectType()
 export class WorkStatusList {
-  @Field(() => String)
+  @Field(() => WorkStatus)
   workStatus: WorkStatus;
 }
 

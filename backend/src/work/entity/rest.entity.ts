@@ -1,5 +1,5 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
-import { IsOptional, IsString } from 'class-validator';
+import { IsNumber, IsOptional, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/entity/core.entity';
 import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { Work } from './work.entity';
@@ -34,4 +34,10 @@ export class Rest extends CoreEntity {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @Field(() => Number, { nullable: true })
+  @Column({ nullable: true })
+  @IsOptional()
+  @IsNumber()
+  TotalMinute: number;
 }

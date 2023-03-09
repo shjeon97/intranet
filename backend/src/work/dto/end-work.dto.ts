@@ -3,5 +3,5 @@ import { Work } from '../entity/work.entity';
 
 @InputType()
 export class EndWorkInput extends PartialType(
-  PickType(Work, ['userId', 'date']),
+  PickType(Work, ['userId', 'date', 'overtimeReason']),
 ) {}

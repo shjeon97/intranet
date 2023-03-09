@@ -15,6 +15,7 @@ import { TypedDocumentNode as DocumentNode } from '@graphql-typed-document-node/
 const documents = {
     "\n  mutation createRest($input: CreateRestInput!) {\n    createRest(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateRestDocument,
     "\n  mutation endWork($input: EndWorkInput!) {\n    endWork(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EndWorkDocument,
+    "\n  mutation endRest($input: EndRestInput!) {\n    endRest(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EndRestDocument,
     "\n  query findWork($input: FindWorkInput!) {\n    findWork(input: $input) {\n      ok\n      error\n      work {\n        id\n        startTime\n        endTime\n        date\n        workStatus {\n          name\n          color\n        }\n        memo\n      }\n    }\n  }\n": types.FindWorkDocument,
     "\n  query findResting($input: FindRestingInput!) {\n    findResting(input: $input) {\n      ok\n      error\n      rest {\n        id\n        startTime\n        reason\n      }\n    }\n  }\n": types.FindRestingDocument,
     "\n  mutation createWork($input: CreateWorkInput!) {\n    createWork(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateWorkDocument,
@@ -24,6 +25,7 @@ const documents = {
     "\n  mutation createUser($input: CreateUserInput!) {\n    createUser(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateUserDocument,
     "\n  mutation login($input: LoginInput!) {\n    login(input: $input) {\n      ok\n      error\n      token\n    }\n  }\n": types.LoginDocument,
     "\n  mutation editUser($input: EditUserInput!) {\n    editUser(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditUserDocument,
+    "\n  query findWorkRecordByUserId($input: FindWorkRecordByUserIdInput!) {\n    findWorkRecordByUserId(input: $input) {\n      ok\n      error\n      works {\n        date\n        user {\n          id\n          name\n          position\n          teams {\n            level\n            name\n          }\n        }\n        id\n        startTime\n        endTime\n        memo\n        workStatusList {\n          workStatus {\n            name\n            color\n          }\n        }\n      }\n      rests {\n        id\n        startTime\n        endTime\n        reason\n      }\n    }\n  }\n": types.FindWorkRecordByUserIdDocument,
 };
 
 /**
@@ -48,6 +50,10 @@ export function graphql(source: "\n  mutation createRest($input: CreateRestInput
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation endWork($input: EndWorkInput!) {\n    endWork(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation endWork($input: EndWorkInput!) {\n    endWork(input: $input) {\n      ok\n      error\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation endRest($input: EndRestInput!) {\n    endRest(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation endRest($input: EndRestInput!) {\n    endRest(input: $input) {\n      ok\n      error\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
@@ -84,6 +90,10 @@ export function graphql(source: "\n  mutation login($input: LoginInput!) {\n    
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation editUser($input: EditUserInput!) {\n    editUser(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation editUser($input: EditUserInput!) {\n    editUser(input: $input) {\n      ok\n      error\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query findWorkRecordByUserId($input: FindWorkRecordByUserIdInput!) {\n    findWorkRecordByUserId(input: $input) {\n      ok\n      error\n      works {\n        date\n        user {\n          id\n          name\n          position\n          teams {\n            level\n            name\n          }\n        }\n        id\n        startTime\n        endTime\n        memo\n        workStatusList {\n          workStatus {\n            name\n            color\n          }\n        }\n      }\n      rests {\n        id\n        startTime\n        endTime\n        reason\n      }\n    }\n  }\n"): (typeof documents)["\n  query findWorkRecordByUserId($input: FindWorkRecordByUserIdInput!) {\n    findWorkRecordByUserId(input: $input) {\n      ok\n      error\n      works {\n        date\n        user {\n          id\n          name\n          position\n          teams {\n            level\n            name\n          }\n        }\n        id\n        startTime\n        endTime\n        memo\n        workStatusList {\n          workStatus {\n            name\n            color\n          }\n        }\n      }\n      rests {\n        id\n        startTime\n        endTime\n        reason\n      }\n    }\n  }\n"];
 
 export function graphql(source: string) {
   return (documents as any)[source] ?? {};

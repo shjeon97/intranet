@@ -18,9 +18,14 @@ import { EditWorkInput } from './dto/edit-work.dto';
 import { EndWorkInput } from './dto/end-work.dto';
 import { FindRestingInput, FindRestingOutput } from './dto/find-resting.dto';
 import { FindWorkInput, FindWorkOutput } from './dto/find-work.dto';
+import {
+  FindWorkRecordByUserIdInput,
+  FindWorkRecordByUserIdOutput,
+} from './dto/find-work-record-by-userId.dto';
 import { Rest } from './entity/rest.entity';
 import { WorkStatus } from './entity/work-status.entity';
 import { Work } from './entity/work.entity';
+import { EndRestInput } from './dto/end-rest.dto';
 
 @Injectable()
 export class WorkService {
@@ -52,6 +57,50 @@ export class WorkService {
       return {
         ok: false,
         error: '근무 정보 찾기 실패',
+      };
+    }
+  }
+  async findWorkRecordByUserId({
+    userId,
+  }: FindWorkRecordByUserIdInput): Promise<FindWorkRecordByUserIdOutput> {
+    try {
+      const works = await this.workRepository.find({
+        where: {
+          userId,
+        },
+      });
+
+      if (works.length < 1) {
+        return {
+          ok: true,
+        };
+      }
+
+      const rests: Rest[] = [];
+      await Promise.all(
+        works.map(async (work) => {
+          const restList = await this.restRepository.find({
+            where: { work: { id: work.id } },
+          });
+          if (restList.length > 0) {
+            restList.forEach((rest) => {
+              rests.push(rest);
+            });
+          }
+        }),
+      );
+
+      return {
+        ok: true,
+        works,
+        rests,
+      };
+    } catch (error) {
+      console.log(error);
+
+      return {
+        ok: false,
+        error: '근무 정보 리스트 찾기 실패',
       };
     }
   }
@@ -257,7 +306,6 @@ export class WorkService {
 @Injectable()
 export class RestService {
   constructor(
-    private readonly logService: LogService,
     @InjectRepository(Work) private readonly workRepository: Repository<Work>,
     @InjectRepository(Rest) private readonly restRepository: Repository<Rest>,
   ) {}
@@ -350,6 +398,46 @@ export class RestService {
       return {
         ok: false,
         error: '휴게 수정 실패',
+      };
+    }
+  }
+
+  async endRest({ id }: EndRestInput): Promise<CoreOutput> {
+    try {
+      const rest = await this.restRepository.findOne({
+        where: { id },
+      });
+
+      if (!rest) {
+        return {
+          ok: false,
+          error: '존재하지 않는 휴게기록 입니다',
+        };
+      }
+
+      const TotalMinute = parseInt(
+        formatDistanceToNowStrict(
+          new Date(`${format(new Date(), 'yyyy MM dd')} ${rest.startTime}`),
+          { unit: 'minute' },
+        ),
+      );
+
+      await this.restRepository.save(
+        this.restRepository.create({
+          id: rest.id,
+          endTime: format(new Date(), 'HH:mm:ss'),
+          TotalMinute,
+        }),
+      );
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+
+      return {
+        ok: false,
+        error: '휴게기록 수정 실패',
       };
     }
   }
