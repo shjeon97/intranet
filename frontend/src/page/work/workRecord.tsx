@@ -5,9 +5,7 @@ import { Chip } from "@material-tailwind/react";
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import Table from "../../component/react-table/table";
-import { Work } from "../../gql/graphql";
 import { useMeQuery } from "../../hook/query/useMeQuery";
-import { colors } from "@material-tailwind/react/types/generic";
 
 export const FIND_WORK_RECORD_BY_USER_ID_QUERY = gql`
   query findWorkRecordByUserId($input: FindWorkRecordByUserIdInput!) {
@@ -56,7 +54,7 @@ const WorkRecord = () => {
         setTableData([]);
         if (data.findWorkRecordByUserId.ok) {
           if (data.findWorkRecordByUserId?.works) {
-            data.findWorkRecordByUserId?.works.map((work: Work) => {
+            data.findWorkRecordByUserId?.works.map((work: any) => {
               return setTableData((tableData: any) => {
                 return [
                   ...tableData,
@@ -69,12 +67,13 @@ const WorkRecord = () => {
                     }`,
                     team: (
                       <>
-                        {work.user.teams?.sort((team) => team.level)[0]
+                        {work.user.teams?.sort((team: any) => team.level)[0]
                           ?.name && (
                           <Chip
                             value={
-                              work.user.teams?.sort((team) => team.level)[0]
-                                ?.name
+                              work.user.teams?.sort(
+                                (team: any) => team.level
+                              )[0]?.name
                             }
                           />
                         )}
@@ -99,7 +98,7 @@ const WorkRecord = () => {
                     ),
                     workStatusList: (
                       <div className="flex gap-1">
-                        {work.workStatusList?.map((e, index) => {
+                        {work.workStatusList?.map((e: any, index: any) => {
                           return (
                             <Chip
                               key={index}
