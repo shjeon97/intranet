@@ -39,5 +39,5 @@ export class Rest extends CoreEntity {
   @Column({ nullable: true })
   @IsOptional()
   @IsNumber()
-  TotalMinute: number;
+  totalMinute: number;
 }

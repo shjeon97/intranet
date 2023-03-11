@@ -10,7 +10,7 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { LogType } from 'src/log/entity/log.entity';
 import { LogService } from 'src/log/log.service';
 import { User } from 'src/user/entity/user.entity';
-import { IsNull, Repository } from 'typeorm';
+import { ILike, IsNull, Repository } from 'typeorm';
 import { CreateRestInput } from './dto/create-rest.dto';
 import { CreateWorkInput } from './dto/create-work.dto';
 import { EditRestInput } from './dto/edit-rest.dto';
@@ -62,11 +62,25 @@ export class WorkService {
   }
   async findWorkRecordByUserId({
     userId,
+    page,
+    value,
+    type,
+    sort,
+    pageSize,
   }: FindWorkRecordByUserIdInput): Promise<FindWorkRecordByUserIdOutput> {
     try {
-      const works = await this.workRepository.find({
+      const [works, totalResult] = await this.workRepository.findAndCount({
         where: {
           userId,
+        },
+        ...(type &&
+          value && {
+            where: { [type]: ILike(`%${value.trim()}%`) },
+          }),
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+        order: {
+          ...(sort && { [sort]: 'DESC' }),
         },
       });
 
@@ -94,6 +108,7 @@ export class WorkService {
         ok: true,
         works,
         rests,
+        totalPage: Math.ceil(totalResult / pageSize),
       };
     } catch (error) {
       console.log(error);
@@ -426,7 +441,7 @@ export class RestService {
         this.restRepository.create({
           id: rest.id,
           endTime: format(new Date(), 'HH:mm:ss'),
-          TotalMinute,
+          totalMinute: TotalMinute,
         }),
       );
       return {
