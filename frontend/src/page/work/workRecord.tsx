@@ -11,13 +11,13 @@ import {
 } from "@tanstack/react-table";
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { Page, PageSize } from "../../constant";
+import { Page, PageSize } from "../../constants";
 import { Work } from "../../gql/graphql";
 import { useMeQuery } from "../../hook/query/useMeQuery";
 
-export const FIND_WORK_RECORD_BY_USER_ID_QUERY = gql`
-  query findWorkRecordByUserId($input: FindWorkRecordByUserIdInput!) {
-    findWorkRecordByUserId(input: $input) {
+export const SEARCH_WORK_RECORD_QUERY = gql`
+  query searchWorkRecord($input: SearchWorkRecordInput!) {
+    searchWorkRecord(input: $input) {
       ok
       error
       totalPage
@@ -60,17 +60,14 @@ const WorkRecord = () => {
   const { data: meData } = useMeQuery();
   const [tableData, setTableData] = useState<any>([]);
   const [
-    loadFindWorkRecordByUserIdQuery,
-    {
-      data: findWorkRecordByUserIdData,
-      loading: findWorkRecordByUserIdLoading,
-    },
-  ] = useLazyQuery(FIND_WORK_RECORD_BY_USER_ID_QUERY, {
+    loadSearchWorkRecordQuery,
+    { data: searchWorkRecordData, loading: searchWorkRecordLoading },
+  ] = useLazyQuery(SEARCH_WORK_RECORD_QUERY, {
     onCompleted: (data) => {
       setTableData([]);
-      if (data.findWorkRecordByUserId.ok) {
-        if (data.findWorkRecordByUserId?.works) {
-          data.findWorkRecordByUserId?.works.map((work: Work) => {
+      if (data.searchWorkRecord.ok) {
+        if (data.searchWorkRecord?.works) {
+          data.searchWorkRecord?.works.map((work: Work) => {
             return setTableData((tableData: any) => {
               return [
                 ...tableData,
@@ -126,10 +123,10 @@ const WorkRecord = () => {
                   ),
                   totalRestMinute: (
                     <div className="flex gap-1">
-                      {data.findWorkRecordByUserId.rests.filter(
+                      {data.searchWorkRecord.rests.filter(
                         (rest: any) => rest.workId === work.id
                       ).length > 0 &&
-                        data.findWorkRecordByUserId.rests
+                        data.searchWorkRecord.rests
                           .filter((rest: any) => rest.workId === work.id)
                           .map((rest: any, index: any) => {
                             if (rest.totalMinute > 0) {
@@ -148,12 +145,12 @@ const WorkRecord = () => {
                   approval: (
                     <Chip
                       color={
-                        data.findWorkRecordByUserId?.works.approvalUserId
+                        data.searchWorkRecord?.works.approvalUserId
                           ? "blue"
                           : "red"
                       }
                       value={
-                        data.findWorkRecordByUserId?.works.approvalUserId
+                        data.searchWorkRecord?.works.approvalUserId
                           ? "승인"
                           : "미승인"
                       }
@@ -228,10 +225,9 @@ const WorkRecord = () => {
   );
   useEffect(() => {
     if (meData?.me?.id) {
-      loadFindWorkRecordByUserIdQuery({
+      loadSearchWorkRecordQuery({
         variables: {
           input: {
-            userId: meData?.me?.id,
             sort: "date",
             page: pagination.pageIndex + 1,
             pageSize: pagination.pageSize,
@@ -239,7 +235,7 @@ const WorkRecord = () => {
         },
       });
     }
-  }, [meData?.me?.id, loadFindWorkRecordByUserIdQuery, pagination]);
+  }, [meData?.me?.id, loadSearchWorkRecordQuery, pagination]);
 
   const table = useReactTable({
     data: tableData,
@@ -247,46 +243,53 @@ const WorkRecord = () => {
     state: {
       pagination,
     },
-    pageCount: findWorkRecordByUserIdData?.pageCount ?? -1,
+    pageCount: searchWorkRecordData?.searchWorkRecord?.totalPage ?? -1,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     debugTable: true,
   });
+  console.log(searchWorkRecordData?.searchWorkRecord?.totalPage);
 
   return (
     <>
       <div className="hidden lg:block p-2">
         <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 border-gray-90">
           <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-            <div className=" overflow-hidden border border-gray-400 sm:rounded-lg">
+            <div className=" overflow-hidden">
               <div className="items-center">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-lg">
                   <Button
-                    className="border rounded p-1"
+                    size="lg"
+                    className="border rounded py-1.5 px-3"
                     onClick={() => table.setPageIndex(0)}
                     disabled={!table.getCanPreviousPage()}
                   >
                     {"<<"}
                   </Button>
                   <Button
-                    className="border rounded p-1"
+                    size="lg"
+                    className="border rounded py-1.5 px-3"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
                   >
                     {"<"}
                   </Button>
                   <Button
-                    className="border rounded p-1"
+                    size="lg"
+                    className="border rounded py-1.5 px-3"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
                   >
                     {">"}
                   </Button>
                   <Button
-                    className="border rounded p-1"
+                    size="lg"
+                    className="border rounded py-1.5 px-3"
                     onClick={() =>
-                      table.setPageIndex(findWorkRecordByUserIdData.totalPage)
+                      table.setPageIndex(
+                        searchWorkRecordData?.searchWorkRecord?.totalPage
+                      )
                     }
                     disabled={!table.getCanNextPage()}
                   >
@@ -319,25 +322,23 @@ const WorkRecord = () => {
                       table.setPageSize(Number(e.target.value));
                     }}
                   >
-                    {[10, 1, 30, 40, 50].map((pageSize) => (
+                    {[10, 20, 30, 40, 50].map((pageSize) => (
                       <option key={pageSize} value={pageSize}>
                         Show {pageSize}
                       </option>
                     ))}
                   </select>
-                  {findWorkRecordByUserIdLoading ? "Loading..." : null}
+                  {searchWorkRecordLoading ? "Loading..." : null}
                 </div>
-                <div>{table.getRowModel().rows.length} Rows</div>
-                <pre>{JSON.stringify(pagination, null, 2)}</pre>
               </div>
             </div>
-            <table className="min-w-full divide-y divide-gray-400">
+            <table className=" min-w-full divide-y divide-gray-400">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <th
-                        className="px-6 py-3 text-left font-medium uppercase tracking-wider"
+                        className="px-3 py-3 text-left font-medium uppercase tracking-wider"
                         key={header.id}
                       >
                         {header.isPlaceholder
@@ -351,12 +352,12 @@ const WorkRecord = () => {
                   </tr>
                 ))}
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className=" divide-y divide-gray-200">
                 {table.getRowModel().rows.map((row) => (
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <td
-                        className="px-6 py-4 whitespace-nowrap font-medium text-gray-900"
+                        className="px-3 py-4 whitespace-nowrap font-medium text-gray-900"
                         key={cell.id}
                       >
                         {flexRender(

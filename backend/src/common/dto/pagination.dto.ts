@@ -1,12 +1,13 @@
 import { Field, InputType, ObjectType } from '@nestjs/graphql';
+import { Page, PageSize } from '../constants';
 import { CoreOutput } from './output.dto';
 
 @InputType()
 export class PaginationInput {
-  @Field(() => Number, { defaultValue: 1 })
+  @Field(() => Number, { defaultValue: Page })
   page: number;
 
-  @Field(() => Number, { defaultValue: 15 })
+  @Field(() => Number, { defaultValue: PageSize })
   pageSize: number;
 
   @Field(() => String, { nullable: true })

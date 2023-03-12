@@ -5,7 +5,7 @@ import {
   formatDistanceStrict,
   formatDistanceToNowStrict,
 } from 'date-fns';
-import { WORK_STATUS_NAMES } from 'src/common/constant';
+import { WORK_STATUS_NAMES } from 'src/common/constants';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { LogType } from 'src/log/entity/log.entity';
 import { LogService } from 'src/log/log.service';
@@ -19,13 +19,14 @@ import { EndWorkInput } from './dto/end-work.dto';
 import { FindRestingInput, FindRestingOutput } from './dto/find-resting.dto';
 import { FindWorkInput, FindWorkOutput } from './dto/find-work.dto';
 import {
-  FindWorkRecordByUserIdInput,
-  FindWorkRecordByUserIdOutput,
+  SearchWorkRecordInput,
+  SearchWorkRecordOutput,
 } from './dto/find-work-record-by-userId.dto';
 import { Rest } from './entity/rest.entity';
 import { WorkStatus } from './entity/work-status.entity';
 import { Work } from './entity/work.entity';
 import { EndRestInput } from './dto/end-rest.dto';
+import { StartRestInput } from './dto/start-rest.dto';
 
 @Injectable()
 export class WorkService {
@@ -60,18 +61,14 @@ export class WorkService {
       };
     }
   }
-  async findWorkRecordByUserId({
-    userId,
-    page,
-    value,
-    type,
-    sort,
-    pageSize,
-  }: FindWorkRecordByUserIdInput): Promise<FindWorkRecordByUserIdOutput> {
+  async searchWorkRecord(
+    { page, value, type, sort, pageSize }: SearchWorkRecordInput,
+    user: User,
+  ): Promise<SearchWorkRecordOutput> {
     try {
       const [works, totalResult] = await this.workRepository.findAndCount({
         where: {
-          userId,
+          userId: user.id,
         },
         ...(type &&
           value && {
@@ -120,10 +117,7 @@ export class WorkService {
     }
   }
 
-  async createWork(
-    createWorkInput: CreateWorkInput,
-    ip: string,
-  ): Promise<CoreOutput> {
+  async createWork(createWorkInput: CreateWorkInput): Promise<CoreOutput> {
     try {
       const user = await this.userRepository.findOne({
         where: { id: createWorkInput.userId },
@@ -154,20 +148,68 @@ export class WorkService {
         }),
       );
 
-      if (
-        workStatus.name === WORK_STATUS_NAMES.InSiteWork ||
-        workStatus.name === WORK_STATUS_NAMES.OnSiteWork ||
-        workStatus.name === WORK_STATUS_NAMES.Late
-      ) {
-        this.logService.create({
-          type: LogType.startWork,
-          contents: {
-            userId: user.id,
-            workStatusName: workStatus.name,
-            ip,
-          },
-        });
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+
+      return {
+        ok: false,
+        error: '근무 일정 생성 실패',
+      };
+    }
+  }
+
+  async startWork(
+    startWorkInput: CreateWorkInput,
+    ip: string,
+  ): Promise<CoreOutput> {
+    try {
+      const user = await this.userRepository.findOne({
+        where: { id: startWorkInput.userId },
+      });
+      if (!user) {
+        return {
+          ok: false,
+          error: '존재하지 않는 유저입니다',
+        };
       }
+      const workStatus = await this.workStatusRepository.findOne({
+        where: {
+          name: startWorkInput.workStatusName,
+        },
+      });
+      if (!workStatus) {
+        return {
+          ok: false,
+          error: '존재하지 않는 근무유형입니다',
+        };
+      }
+
+      await this.workRepository.save(
+        this.workRepository.create({
+          user,
+          workStatus,
+          ...(workStatus.name === WORK_STATUS_NAMES.InSiteWork &&
+          Number(format(new Date(), 'HH')) < 8
+            ? {
+                startTime: '08:00:00',
+              }
+            : { startTime: format(new Date(), 'HH:mm:ss') }),
+          ...startWorkInput,
+          workStatusList: [{ workStatus }],
+        }),
+      );
+
+      this.logService.create({
+        type: LogType.startWork,
+        contents: {
+          userId: user.id,
+          workStatusName: workStatus.name,
+          ip,
+        },
+      });
 
       return {
         ok: true,
@@ -342,6 +384,40 @@ export class RestService {
         this.restRepository.create({
           work,
           ...createRestInput,
+        }),
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      console.log(error);
+
+      return {
+        ok: false,
+        error: '휴게 생성 실패',
+      };
+    }
+  }
+
+  async startRest(startRestInput: StartRestInput): Promise<CoreOutput> {
+    try {
+      const work = await this.workRepository.findOne({
+        where: {
+          id: startRestInput.workId,
+        },
+      });
+      if (!work) {
+        return {
+          ok: false,
+          error: '존재하지 않는 근무기록입니다',
+        };
+      }
+      await this.restRepository.save(
+        this.restRepository.create({
+          work,
+          startTime: format(new Date(), 'HH:mm:ss'),
+          ...startRestInput,
         }),
       );
 

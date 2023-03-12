@@ -1,6 +1,6 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Role } from 'src/auth/decorator/role.decorator';
-import { USER_ROLE_NAMES } from 'src/common/constant';
+import { USER_ROLE_NAMES } from 'src/common/constants';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { CreateRestInput } from './dto/create-rest.dto';
 import { CreateWorkInput } from './dto/create-work.dto';
@@ -10,11 +10,15 @@ import { EndWorkInput } from './dto/end-work.dto';
 import { FindRestingInput, FindRestingOutput } from './dto/find-resting.dto';
 import { FindWorkInput, FindWorkOutput } from './dto/find-work.dto';
 import {
-  FindWorkRecordByUserIdInput,
-  FindWorkRecordByUserIdOutput,
+  SearchWorkRecordInput,
+  SearchWorkRecordOutput,
 } from './dto/find-work-record-by-userId.dto';
 import { RestService, WorkService } from './work.service';
 import { EndRestInput } from './dto/end-rest.dto';
+import { StartRestInput } from './dto/start-rest.dto';
+import { StartWorkInput } from './dto/start-work.dto';
+import { AuthUser } from 'src/auth/decorator/auth-user.decorator';
+import { User } from 'src/user/entity/user.entity';
 
 @Resolver()
 export class WorkResolver {
@@ -28,21 +32,30 @@ export class WorkResolver {
     return this.workService.findWork(findWorkInput);
   }
 
-  @Query(() => FindWorkRecordByUserIdOutput)
+  @Query(() => SearchWorkRecordOutput)
   @Role([USER_ROLE_NAMES.Any])
-  async findWorkRecordByUserId(
-    @Args('input') findWorkRecordByUserIdInput: FindWorkRecordByUserIdInput,
-  ): Promise<FindWorkRecordByUserIdOutput> {
-    return this.workService.findWorkRecordByUserId(findWorkRecordByUserIdInput);
+  async searchWorkRecord(
+    @AuthUser() user: User,
+    @Args('input') searchWorkRecordInput: SearchWorkRecordInput,
+  ): Promise<SearchWorkRecordOutput> {
+    return this.workService.searchWorkRecord(searchWorkRecordInput, user);
   }
 
   @Mutation(() => CoreOutput)
   @Role([USER_ROLE_NAMES.Any])
   async createWork(
-    @Context() content: any,
     @Args('input') createWorkInput: CreateWorkInput,
   ): Promise<CoreOutput> {
-    return this.workService.createWork(createWorkInput, content.clientIp);
+    return this.workService.createWork(createWorkInput);
+  }
+
+  @Mutation(() => CoreOutput)
+  @Role([USER_ROLE_NAMES.Any])
+  async startWork(
+    @Context() content: any,
+    @Args('input') startWorkInput: StartWorkInput,
+  ): Promise<CoreOutput> {
+    return this.workService.startWork(startWorkInput, content.clientIp);
   }
 
   @Mutation(() => CoreOutput)
@@ -72,6 +85,14 @@ export class RestResolver {
     @Args('input') createRestInput: CreateRestInput,
   ): Promise<CoreOutput> {
     return this.restService.createRest(createRestInput);
+  }
+
+  @Mutation(() => CoreOutput)
+  @Role([USER_ROLE_NAMES.Any])
+  async startRest(
+    @Args('input') startRestInput: StartRestInput,
+  ): Promise<CoreOutput> {
+    return this.restService.startRest(startRestInput);
   }
 
   @Query(() => FindRestingOutput)

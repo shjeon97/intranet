@@ -17,11 +17,11 @@ import Swal from "sweetalert2";
 import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
 import { LOCAL_STORAGE_TOKEN, WORK_STATUS_NAMES } from "../../constants";
 import {
-  CreateRestMutation,
+  StartRestMutation,
   EndRestMutation,
   EndWorkMutation,
+  StartWorkMutation,
 } from "../../gql/graphql";
-import useCreateWorkMutation from "../../hook/mutation/useCreateWorkMutation";
 import useEditWorkMutation from "../../hook/mutation/useEditWorkMutation";
 import { useMeQuery } from "../../hook/query/useMeQuery";
 import useRealtimeClock from "../../hook/useRealTimeClock";
@@ -36,9 +36,27 @@ export const CREATE_REST_MUTATION = gql`
   }
 `;
 
+export const START_WORK_MUTATION = gql`
+  mutation startWork($input: StartWorkInput!) {
+    startWork(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 export const END_WORK_MUTATION = gql`
   mutation endWork($input: EndWorkInput!) {
     endWork(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
+export const START_REST_MUTATION = gql`
+  mutation startRest($input: StartRestInput!) {
+    startRest(input: $input) {
       ok
       error
     }
@@ -91,7 +109,6 @@ export const FIND_RESTING_QUERY = gql`
 const WorkCard = () => {
   const navigate = useNavigate();
   const time = useRealtimeClock();
-  const { createWork, loading: createWorkLoading } = useCreateWorkMutation();
   const { editWork, loading: editWorkLoading } = useEditWorkMutation();
   const [endRest, { loading: endRestLoading }] = useMutation(
     END_REST_MUTATION,
@@ -138,12 +155,38 @@ const WorkCard = () => {
     }
   );
 
-  const [createRest, { loading: createRestLoading }] = useMutation(
-    CREATE_REST_MUTATION,
+  const [startWork, { loading: startWorkLoading }] = useMutation(
+    START_WORK_MUTATION,
     {
-      onCompleted: (data: CreateRestMutation) => {
+      onCompleted: (data: StartWorkMutation) => {
         const {
-          createRest: { ok, error },
+          startWork: { ok, error },
+        } = data;
+
+        if (ok) {
+          Toast.fire({
+            icon: "success",
+            title: `근무 시작`,
+            position: "top-end",
+            timer: 1200,
+          });
+          workRefetch();
+        } else if (error) {
+          Toast.fire({
+            icon: "error",
+            title: error,
+          });
+        }
+      },
+    }
+  );
+
+  const [startRest, { loading: startRestLoading }] = useMutation(
+    START_REST_MUTATION,
+    {
+      onCompleted: (data: StartRestMutation) => {
+        const {
+          startRest: { ok, error },
         } = data;
 
         if (ok) {
@@ -242,12 +285,11 @@ const WorkCard = () => {
       showCancelButton: true,
       cancelButtonText: "취소",
     }).then(async (result) => {
-      if (!createRestLoading && result.isConfirmed) {
-        await createRest({
+      if (!startRestLoading && result.isConfirmed) {
+        await startRest({
           variables: {
             input: {
               workId: workData?.findWork?.work?.id,
-              startTime: format(new Date(), "HH:mm:ss"),
               reason: result.value,
             },
           },
@@ -278,7 +320,7 @@ const WorkCard = () => {
   };
 
   const handleStartWork = async () => {
-    if (!createWorkLoading && meData) {
+    if (!startWorkLoading && meData) {
       if (
         Number(format(new Date(), "HH")) >= 10 &&
         Number(format(new Date(), "mm")) > 0
@@ -294,16 +336,16 @@ const WorkCard = () => {
           cancelButtonText: "취소",
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const response = await createWork({
-              date: format(new Date(), "yyyy MM dd"),
-              startTime: format(new Date(), "HH:mm:ss"),
-              workStatusName: WORK_STATUS_NAMES.Late,
-              userId: meData.me.id,
-              memo: `지각 사유 : ${result.value}`,
+            await startWork({
+              variables: {
+                input: {
+                  date: format(new Date(), "yyyy MM dd"),
+                  userId: meData.me.id,
+                  workStatusName: WORK_STATUS_NAMES.Late,
+                  memo: `지각 사유 : ${result.value}`,
+                },
+              },
             });
-            if (response.ok) {
-              workRefetch();
-            }
           }
         });
       } else if (Number(format(new Date(), "HH")) < 8) {
@@ -320,37 +362,37 @@ const WorkCard = () => {
           cancelButtonText: "취소",
         }).then(async (result) => {
           if (result.isConfirmed) {
-            const response = await createWork({
-              date: format(new Date(), "yyyy MM dd"),
-              startTime: format(new Date(), "HH:mm:ss"),
-              workStatusName: WORK_STATUS_NAMES.OnSiteWork,
-              userId: meData.me.id,
+            await startWork({
+              variables: {
+                input: {
+                  date: format(new Date(), "yyyy MM dd"),
+                  userId: meData.me.id,
+                  workStatusName: WORK_STATUS_NAMES.OnSiteWork,
+                },
+              },
             });
-            if (response.ok) {
-              workRefetch();
-            }
           } else if (result.isDenied) {
-            const response = await createWork({
-              date: format(new Date(), "yyyy MM dd"),
-              startTime: "08:00:00",
-              workStatusName: WORK_STATUS_NAMES.InSiteWork,
-              userId: meData.me.id,
+            await startWork({
+              variables: {
+                input: {
+                  date: format(new Date(), "yyyy MM dd"),
+                  userId: meData.me.id,
+                  workStatusName: WORK_STATUS_NAMES.InSiteWork,
+                },
+              },
             });
-            if (response.ok) {
-              workRefetch();
-            }
           }
         });
       } else {
-        const response = await createWork({
-          date: format(new Date(), "yyyy MM dd"),
-          startTime: format(new Date(), "HH:mm:ss"),
-          workStatusName: WORK_STATUS_NAMES.InSiteWork,
-          userId: meData.me.id,
+        await startWork({
+          variables: {
+            input: {
+              date: format(new Date(), "yyyy MM dd"),
+              userId: meData.me.id,
+              workStatusName: WORK_STATUS_NAMES.InSiteWork,
+            },
+          },
         });
-        if (response.ok) {
-          workRefetch();
-        }
       }
     }
   };

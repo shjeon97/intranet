@@ -12,3 +12,8 @@ export const WORK_STATUS_NAMES = {
 } as const;
 type WORK_STATUS_NAMES =
   (typeof WORK_STATUS_NAMES)[keyof typeof WORK_STATUS_NAMES];
+
+// 기본 게시물 페이지 번호
+export const Page = 1;
+// 기본 게시물 개수
+export const PageSize = 15;

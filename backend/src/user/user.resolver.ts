@@ -1,7 +1,7 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthUser } from 'src/auth/decorator/auth-user.decorator';
 import { Role } from 'src/auth/decorator/role.decorator';
-import { USER_ROLE_NAMES } from 'src/common/constant';
+import { USER_ROLE_NAMES } from 'src/common/constants';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { CreateUserInput } from './dto/create-user.dto';
 import { EditUserInput } from './dto/edit-user.dto';

@@ -7,13 +7,10 @@ import { Rest } from '../entity/rest.entity';
 import { Work } from '../entity/work.entity';
 
 @InputType()
-export class FindWorkRecordByUserIdInput extends PaginationInput {
-  @Field(() => Number)
-  userId: number;
-}
+export class SearchWorkRecordInput extends PaginationInput {}
 
 @ObjectType()
-export class FindWorkRecordByUserIdOutput extends PaginationOutput {
+export class SearchWorkRecordOutput extends PaginationOutput {
   @Field(() => [Work], { nullable: true })
   works?: Work[];
 
