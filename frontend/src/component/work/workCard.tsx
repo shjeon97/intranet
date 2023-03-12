@@ -463,7 +463,7 @@ const WorkCard = () => {
       ) {
         Toast.fire({
           icon: "error",
-          title: "최소 근무시간 미달입니다1",
+          title: "최소 근무시간 미달입니다",
           timer: 1200,
           position: "top-end",
         });
