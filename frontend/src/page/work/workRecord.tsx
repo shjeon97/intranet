@@ -1,7 +1,7 @@
 import { gql, useLazyQuery } from "@apollo/client";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Chip } from "@material-tailwind/react";
+import { Button, Chip } from "@material-tailwind/react";
 import {
   createColumnHelper,
   flexRender,
@@ -168,7 +168,7 @@ const WorkRecord = () => {
     },
   });
   const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: Page,
+    pageIndex: Page - 1,
     pageSize: PageSize,
   });
 
@@ -219,20 +219,6 @@ const WorkRecord = () => {
       inputValue: memo,
     });
   };
-
-  useEffect(() => {
-    if (meData?.me?.id) {
-      loadFindWorkRecordByUserIdQuery({
-        variables: {
-          input: {
-            userId: meData?.me?.id,
-            sort: "date",
-          },
-        },
-      });
-    }
-  }, [meData?.me?.id, loadFindWorkRecordByUserIdQuery]);
-
   const pagination = React.useMemo(
     () => ({
       pageIndex,
@@ -240,6 +226,20 @@ const WorkRecord = () => {
     }),
     [pageIndex, pageSize]
   );
+  useEffect(() => {
+    if (meData?.me?.id) {
+      loadFindWorkRecordByUserIdQuery({
+        variables: {
+          input: {
+            userId: meData?.me?.id,
+            sort: "date",
+            page: pagination.pageIndex + 1,
+            pageSize: pagination.pageSize,
+          },
+        },
+      });
+    }
+  }, [meData?.me?.id, loadFindWorkRecordByUserIdQuery, pagination]);
 
   const table = useReactTable({
     data: tableData,
@@ -259,7 +259,78 @@ const WorkRecord = () => {
       <div className="hidden lg:block p-2">
         <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 border-gray-90">
           <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-            <div className=" overflow-hidden border border-gray-400 sm:rounded-lg"></div>
+            <div className=" overflow-hidden border border-gray-400 sm:rounded-lg">
+              <div className="items-center">
+                <div className="flex items-center gap-2">
+                  <Button
+                    className="border rounded p-1"
+                    onClick={() => table.setPageIndex(0)}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    {"<<"}
+                  </Button>
+                  <Button
+                    className="border rounded p-1"
+                    onClick={() => table.previousPage()}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    {"<"}
+                  </Button>
+                  <Button
+                    className="border rounded p-1"
+                    onClick={() => table.nextPage()}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    {">"}
+                  </Button>
+                  <Button
+                    className="border rounded p-1"
+                    onClick={() =>
+                      table.setPageIndex(findWorkRecordByUserIdData.totalPage)
+                    }
+                    disabled={!table.getCanNextPage()}
+                  >
+                    {">>"}
+                  </Button>
+                  <span className="flex items-center gap-1">
+                    <div>Page</div>
+                    <strong>
+                      {table.getState().pagination.pageIndex + 1} of{" "}
+                      {table.getPageCount()}
+                    </strong>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    | Go to page:
+                    <input
+                      type="number"
+                      defaultValue={table.getState().pagination.pageIndex + 1}
+                      onChange={(e) => {
+                        const page = e.target.value
+                          ? Number(e.target.value) - 1
+                          : 0;
+                        table.setPageIndex(page);
+                      }}
+                      className="border p-1 rounded w-16"
+                    />
+                  </span>
+                  <select
+                    value={table.getState().pagination.pageSize}
+                    onChange={(e) => {
+                      table.setPageSize(Number(e.target.value));
+                    }}
+                  >
+                    {[10, 1, 30, 40, 50].map((pageSize) => (
+                      <option key={pageSize} value={pageSize}>
+                        Show {pageSize}
+                      </option>
+                    ))}
+                  </select>
+                  {findWorkRecordByUserIdLoading ? "Loading..." : null}
+                </div>
+                <div>{table.getRowModel().rows.length} Rows</div>
+                <pre>{JSON.stringify(pagination, null, 2)}</pre>
+              </div>
+            </div>
             <table className="min-w-full divide-y divide-gray-400">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -297,75 +368,6 @@ const WorkRecord = () => {
                   </tr>
                 ))}
               </tbody>
-              <tfoot>
-                <div className="h-2" />
-                <div className="flex items-center gap-2">
-                  <button
-                    className="border rounded p-1"
-                    onClick={() => table.setPageIndex(0)}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    {"<<"}
-                  </button>
-                  <button
-                    className="border rounded p-1"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    {"<"}
-                  </button>
-                  <button
-                    className="border rounded p-1"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                  >
-                    {">"}
-                  </button>
-                  <button
-                    className="border rounded p-1"
-                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-                    disabled={!table.getCanNextPage()}
-                  >
-                    {">>"}
-                  </button>
-                  <span className="flex items-center gap-1">
-                    <div>Page</div>
-                    <strong>
-                      {table.getState().pagination.pageIndex + 1} of{" "}
-                      {table.getPageCount()}
-                    </strong>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    | Go to page:
-                    <input
-                      type="number"
-                      defaultValue={table.getState().pagination.pageIndex + 1}
-                      onChange={(e) => {
-                        const page = e.target.value
-                          ? Number(e.target.value) - 1
-                          : 0;
-                        table.setPageIndex(page);
-                      }}
-                      className="border p-1 rounded w-16"
-                    />
-                  </span>
-                  <select
-                    value={table.getState().pagination.pageSize}
-                    onChange={(e) => {
-                      table.setPageSize(Number(e.target.value));
-                    }}
-                  >
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                      <option key={pageSize} value={pageSize}>
-                        Show {pageSize}
-                      </option>
-                    ))}
-                  </select>
-                  {findWorkRecordByUserIdLoading ? "Loading..." : null}
-                </div>
-                <div>{table.getRowModel().rows.length} Rows</div>
-                <pre>{JSON.stringify(pagination, null, 2)}</pre>
-              </tfoot>
             </table>
           </div>
         </div>

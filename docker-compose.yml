@@ -7,6 +7,8 @@ services:
       context: ./frontend
     image: shjeon97/intranet-frontend:1.0.0
     container_name: intranet-frontend
+    environment:
+      - TZ=Asia/Seoul
     env_file:
       - ./frontend/.env.production
     ports:
@@ -19,6 +21,8 @@ services:
       context: ./backend
     image: shjeon97/intranet-backend:1.0.0
     container_name: intranet-backend
+    environment:
+      - TZ=Asia/Seoul
     volumes:
       - /main/public/intranet/upload:/public/upload
     env_file:
