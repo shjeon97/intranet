@@ -8,9 +8,9 @@ import { setContext } from "@apollo/client/link/context";
 import { LOCAL_STORAGE_TOKEN } from "./constants";
 
 const getIp = async () => {
-  const response = await fetch("https://ipapi.co/json/");
+  const response = await fetch("https://freeipapi.com/api/json");
   const data = await response.json();
-  return data.ip;
+  return data.ipAddress;
 };
 const token = localStorage.getItem(LOCAL_STORAGE_TOKEN);
 export const isLoggedInVar = makeVar(Boolean(token));

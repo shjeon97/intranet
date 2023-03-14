@@ -27,6 +27,7 @@ export const SEARCH_WORK_RECORD_QUERY = gql`
           id
           name
           position
+          email
           teams {
             level
             name
@@ -36,6 +37,7 @@ export const SEARCH_WORK_RECORD_QUERY = gql`
         startTime
         endTime
         memo
+        overtimeReason
         approvalUserId
         workStatusList {
           workStatus {
@@ -74,6 +76,7 @@ const WorkRecord = () => {
                 {
                   date: work.date,
                   name: work.user.name,
+                  email: work.user.email,
                   position: work.user.position,
                   workTime: `${work.startTime} ~ ${
                     work.endTime ? work.endTime : ""
@@ -119,6 +122,28 @@ const WorkRecord = () => {
                           />
                         );
                       })}
+                      {work.overtimeReason && (
+                        <div
+                          className=" cursor-pointer"
+                          onClick={() =>
+                            handleOverTimeReason(
+                              work.overtimeReason ? work.overtimeReason : ""
+                            )
+                          }
+                        >
+                          <Chip
+                            value="연장근무"
+                            color="deep-purple"
+                            icon={
+                              <FontAwesomeIcon
+                                className="ml-1"
+                                fontSize={19}
+                                icon={solid("note-sticky")}
+                              />
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   ),
                   totalRestMinute: (
@@ -183,6 +208,10 @@ const WorkRecord = () => {
       header: () => "직책",
       cell: (info) => info.getValue(),
     }),
+    columnHelper.accessor("email", {
+      header: () => "이메일",
+      cell: (info) => info.getValue(),
+    }),
     columnHelper.accessor("workTime", {
       header: () => "근무시간",
       cell: (info) => info.getValue(),
@@ -214,6 +243,14 @@ const WorkRecord = () => {
       title: "근무노트",
       input: "textarea",
       inputValue: memo,
+    });
+  };
+
+  const handleOverTimeReason = (overtimeReason: string) => {
+    Swal.fire({
+      title: "연장근무 사유",
+      input: "textarea",
+      inputValue: overtimeReason,
     });
   };
   const pagination = React.useMemo(
@@ -249,96 +286,93 @@ const WorkRecord = () => {
     manualPagination: true,
     debugTable: true,
   });
-  console.log(searchWorkRecordData?.searchWorkRecord?.totalPage);
 
   return (
-    <>
+    <div className="mx-auto xl:max-w-screen-xl overflow-scroll py-2 px-4 lg:px-8 lg:py-4">
       <div className="hidden lg:block p-2">
-        <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8 border-gray-90">
+        <div className="-my-2  sm:-mx-6 lg:-mx-8 border-gray-90">
           <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-            <div className=" overflow-hidden">
-              <div className="items-center">
-                <div className="flex items-center gap-2 text-lg">
-                  <Button
-                    size="lg"
-                    className="border rounded py-1.5 px-3"
-                    onClick={() => table.setPageIndex(0)}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    {"<<"}
-                  </Button>
-                  <Button
-                    size="lg"
-                    className="border rounded py-1.5 px-3"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    {"<"}
-                  </Button>
-                  <Button
-                    size="lg"
-                    className="border rounded py-1.5 px-3"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                  >
-                    {">"}
-                  </Button>
-                  <Button
-                    size="lg"
-                    className="border rounded py-1.5 px-3"
-                    onClick={() =>
-                      table.setPageIndex(
-                        searchWorkRecordData?.searchWorkRecord?.totalPage
-                      )
-                    }
-                    disabled={!table.getCanNextPage()}
-                  >
-                    {">>"}
-                  </Button>
-                  <span className="flex items-center gap-1">
-                    <div>Page</div>
-                    <strong>
-                      {table.getState().pagination.pageIndex + 1} of{" "}
-                      {table.getPageCount()}
-                    </strong>
-                  </span>
-                  <span className="flex items-center gap-1">
-                    | Go to page:
-                    <input
-                      type="number"
-                      defaultValue={table.getState().pagination.pageIndex + 1}
-                      onChange={(e) => {
-                        const page = e.target.value
-                          ? Number(e.target.value) - 1
-                          : 0;
-                        table.setPageIndex(page);
-                      }}
-                      className="border p-1 rounded w-16"
-                    />
-                  </span>
-                  <select
-                    value={table.getState().pagination.pageSize}
+            <div className="items-center">
+              <div className="flex items-center gap-2 text-lg">
+                <Button
+                  size="lg"
+                  className="border rounded py-1.5 px-3"
+                  onClick={() => table.setPageIndex(0)}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {"<<"}
+                </Button>
+                <Button
+                  size="lg"
+                  className="border rounded py-1.5 px-3"
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                >
+                  {"<"}
+                </Button>
+                <Button
+                  size="lg"
+                  className="border rounded py-1.5 px-3"
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                >
+                  {">"}
+                </Button>
+                <Button
+                  size="lg"
+                  className="border rounded py-1.5 px-3"
+                  onClick={() =>
+                    table.setPageIndex(
+                      searchWorkRecordData?.searchWorkRecord?.totalPage
+                    )
+                  }
+                  disabled={!table.getCanNextPage()}
+                >
+                  {">>"}
+                </Button>
+                <span className="flex items-center gap-1">
+                  <div>Page</div>
+                  <strong>
+                    {table.getState().pagination.pageIndex + 1} of{" "}
+                    {table.getPageCount()}
+                  </strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  | Go to page:
+                  <input
+                    type="number"
+                    defaultValue={table.getState().pagination.pageIndex + 1}
                     onChange={(e) => {
-                      table.setPageSize(Number(e.target.value));
+                      const page = e.target.value
+                        ? Number(e.target.value) - 1
+                        : 0;
+                      table.setPageIndex(page);
                     }}
-                  >
-                    {[10, 20, 30, 40, 50].map((pageSize) => (
-                      <option key={pageSize} value={pageSize}>
-                        Show {pageSize}
-                      </option>
-                    ))}
-                  </select>
-                  {searchWorkRecordLoading ? "Loading..." : null}
-                </div>
+                    className="border p-1 rounded w-16"
+                  />
+                </span>
+                <select
+                  value={table.getState().pagination.pageSize}
+                  onChange={(e) => {
+                    table.setPageSize(Number(e.target.value));
+                  }}
+                >
+                  {[10, 20, 30, 40, 50].map((pageSize) => (
+                    <option key={pageSize} value={pageSize}>
+                      Show {pageSize}
+                    </option>
+                  ))}
+                </select>
+                {searchWorkRecordLoading ? "Loading..." : null}
               </div>
             </div>
-            <table className=" min-w-full divide-y divide-gray-400">
+            <table className="xl:text-lg min-w-full text-md  divide-y divide-gray-400">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <th
-                        className="px-3 py-3 text-left font-medium uppercase tracking-wider"
+                        className="px-1.5 py-3 text-left font-medium uppercase tracking-wider"
                         key={header.id}
                       >
                         {header.isPlaceholder
@@ -357,7 +391,7 @@ const WorkRecord = () => {
                   <tr key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <td
-                        className="px-3 py-4 whitespace-nowrap font-medium text-gray-900"
+                        className="px-1.5 py-4 whitespace-nowrap font-medium text-gray-900"
                         key={cell.id}
                       >
                         {flexRender(
@@ -373,7 +407,7 @@ const WorkRecord = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

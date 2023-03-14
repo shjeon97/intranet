@@ -10,7 +10,7 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { LogType } from 'src/log/entity/log.entity';
 import { LogService } from 'src/log/log.service';
 import { User } from 'src/user/entity/user.entity';
-import { ILike, IsNull, Repository } from 'typeorm';
+import { ILike, In, IsNull, Repository } from 'typeorm';
 import { CreateRestInput } from './dto/create-rest.dto';
 import { CreateWorkInput } from './dto/create-work.dto';
 import { EditRestInput } from './dto/edit-rest.dto';
@@ -27,6 +27,7 @@ import { WorkStatus } from './entity/work-status.entity';
 import { Work } from './entity/work.entity';
 import { EndRestInput } from './dto/end-rest.dto';
 import { StartRestInput } from './dto/start-rest.dto';
+import { RoleName } from 'src/user/entity/role.entity';
 
 @Injectable()
 export class WorkService {
@@ -66,10 +67,33 @@ export class WorkService {
     user: User,
   ): Promise<SearchWorkRecordOutput> {
     try {
+      const teamNameList = [];
+      user.teams.map((team) => {
+        teamNameList.push(team.name);
+      });
+
       const [works, totalResult] = await this.workRepository.findAndCount({
-        where: {
-          userId: user.id,
-        },
+        ...(user.roles.find(
+          (role) =>
+            role.name !== RoleName.Admin &&
+            !user.teams.find((team) => team.level >= 2),
+        ) && {
+          where: {
+            userId: user.id,
+          },
+        }),
+        ...(user.roles.find(
+          (role) =>
+            role.name !== RoleName.Admin && role.name === RoleName.TeamLeader,
+        ) && {
+          where: {
+            user: {
+              teams: {
+                name: In(teamNameList),
+              },
+            },
+          },
+        }),
         ...(type &&
           value && {
             where: { [type]: ILike(`%${value.trim()}%`) },

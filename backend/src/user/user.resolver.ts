@@ -1,12 +1,12 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { AuthUser } from 'src/auth/decorator/auth-user.decorator';
 import { Role } from 'src/auth/decorator/role.decorator';
-import { USER_ROLE_NAMES } from 'src/common/constants';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { CreateUserInput } from './dto/create-user.dto';
 import { EditUserInput } from './dto/edit-user.dto';
 import { GetUserInput, GetUserOutput } from './dto/get-user.dto';
 import { GetUsersOutput } from './dto/get-users.dto';
+import { RoleName } from './entity/role.entity';
 import { User } from './entity/user.entity';
 import { UserService } from './user.service';
 
@@ -14,19 +14,19 @@ import { UserService } from './user.service';
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
 
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   @Query(() => User)
   async me(@AuthUser() user: User): Promise<User> {
     return user;
   }
 
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   @Query(() => GetUsersOutput)
   async getUsers(): Promise<GetUsersOutput> {
     return this.userService.getUsers();
   }
 
-  @Role([USER_ROLE_NAMES.Admin])
+  @Role([RoleName.Admin])
   @Query(() => GetUserOutput)
   async getUser(@Args('input') { id }: GetUserInput): Promise<GetUserOutput> {
     return this.userService.getUser({ id });
@@ -39,7 +39,7 @@ export class UserResolver {
     return this.userService.createUser(createUserInput);
   }
 
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   @Mutation(() => CoreOutput)
   async editUser(
     @AuthUser() user: User,

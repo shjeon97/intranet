@@ -1,6 +1,5 @@
 import { Args, Context, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { Role } from 'src/auth/decorator/role.decorator';
-import { USER_ROLE_NAMES } from 'src/common/constants';
 import { CoreOutput } from 'src/common/dto/output.dto';
 import { CreateRestInput } from './dto/create-rest.dto';
 import { CreateWorkInput } from './dto/create-work.dto';
@@ -19,13 +18,14 @@ import { StartRestInput } from './dto/start-rest.dto';
 import { StartWorkInput } from './dto/start-work.dto';
 import { AuthUser } from 'src/auth/decorator/auth-user.decorator';
 import { User } from 'src/user/entity/user.entity';
+import { RoleName } from 'src/user/entity/role.entity';
 
 @Resolver()
 export class WorkResolver {
   constructor(private workService: WorkService) {}
 
   @Query(() => FindWorkOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async findWork(
     @Args('input') findWorkInput: FindWorkInput,
   ): Promise<FindWorkOutput> {
@@ -33,7 +33,7 @@ export class WorkResolver {
   }
 
   @Query(() => SearchWorkRecordOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async searchWorkRecord(
     @AuthUser() user: User,
     @Args('input') searchWorkRecordInput: SearchWorkRecordInput,
@@ -42,7 +42,7 @@ export class WorkResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async createWork(
     @Args('input') createWorkInput: CreateWorkInput,
   ): Promise<CoreOutput> {
@@ -50,7 +50,7 @@ export class WorkResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async startWork(
     @Context() content: any,
     @Args('input') startWorkInput: StartWorkInput,
@@ -59,7 +59,7 @@ export class WorkResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async endWork(
     @Args('input') endWorkInput: EndWorkInput,
   ): Promise<CoreOutput> {
@@ -67,7 +67,7 @@ export class WorkResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async editWork(
     @Args('input') editWorkInput: EditWorkInput,
   ): Promise<CoreOutput> {
@@ -80,7 +80,7 @@ export class RestResolver {
   constructor(private restService: RestService) {}
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async createRest(
     @Args('input') createRestInput: CreateRestInput,
   ): Promise<CoreOutput> {
@@ -88,7 +88,7 @@ export class RestResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async startRest(
     @Args('input') startRestInput: StartRestInput,
   ): Promise<CoreOutput> {
@@ -96,7 +96,7 @@ export class RestResolver {
   }
 
   @Query(() => FindRestingOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async findResting(
     @Args('input') findRestingInput: FindRestingInput,
   ): Promise<FindRestingOutput> {
@@ -104,7 +104,7 @@ export class RestResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async editRest(
     @Args('input') editRestInput: EditRestInput,
   ): Promise<CoreOutput> {
@@ -112,7 +112,7 @@ export class RestResolver {
   }
 
   @Mutation(() => CoreOutput)
-  @Role([USER_ROLE_NAMES.Any])
+  @Role([RoleName.Any])
   async endRest(
     @Args('input') endRestInput: EndRestInput,
   ): Promise<CoreOutput> {

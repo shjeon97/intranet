@@ -10,7 +10,7 @@ import { ME_QUERY } from "../../hook/query/useMeQuery";
 import Menu from "./menu";
 
 export default function NavBar() {
-  const { data } = useQuery(ME_QUERY);
+  const { data, refetch } = useQuery(ME_QUERY);
   const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
   const isSidebarOpen = useReactiveVar(isSidebarOpenVar);
@@ -22,6 +22,13 @@ export default function NavBar() {
       () => window.innerWidth <= 960 && setOpenNav(false)
     );
   }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+    }, 50000);
+    return () => clearInterval(interval);
+  }, [refetch]);
 
   const onClickHandlerLogout = () => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN);
