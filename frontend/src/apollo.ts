@@ -25,7 +25,7 @@ const authLink = setContext(async (_, { headers }) => {
   return {
     headers: {
       ...headers,
-      authorization: token ? `Bearer ${authTokenVar()}` : "",
+      authorization: authTokenVar() ? `Bearer ${authTokenVar()}` : "",
       "x-real-ip": await getIp(),
     },
   };

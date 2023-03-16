@@ -73,10 +73,9 @@ export class WorkService {
       });
 
       const [works, totalResult] = await this.workRepository.findAndCount({
-        ...(user.roles.find(
+        ...(!user.roles.find(
           (role) =>
-            role.name !== RoleName.Admin &&
-            !user.teams.find((team) => team.level >= 2),
+            role.name === RoleName.Admin || role.name === RoleName.TeamLeader,
         ) && {
           where: {
             userId: user.id,

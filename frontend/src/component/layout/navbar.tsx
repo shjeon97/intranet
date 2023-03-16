@@ -5,16 +5,15 @@ import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
-import { useQuery, useReactiveVar } from "@apollo/client";
-import { ME_QUERY } from "../../hook/query/useMeQuery";
+import { useReactiveVar } from "@apollo/client";
 import Menu from "./menu";
+import { useMeQuery } from "../../hook/query/useMeQuery";
 
 export default function NavBar() {
-  const { data, refetch } = useQuery(ME_QUERY);
+  const { data, loading, refetch } = useMeQuery();
   const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
   const isSidebarOpen = useReactiveVar(isSidebarOpenVar);
-  useQuery(ME_QUERY);
 
   useEffect(() => {
     window.addEventListener(
@@ -28,13 +27,14 @@ export default function NavBar() {
       refetch();
     }, 50000);
     return () => clearInterval(interval);
-  }, [refetch]);
+  }, [refetch, loading]);
 
   const onClickHandlerLogout = () => {
     localStorage.removeItem(LOCAL_STORAGE_TOKEN);
     isLoggedInVar(false);
     isSidebarOpenVar(false);
     navigate("/login");
+    window.location.reload();
   };
 
   return (

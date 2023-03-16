@@ -35,6 +35,7 @@ export const useMeQuery = () => {
         isLoggedInVar(false);
         isSidebarOpenVar(false);
         navigate("/login");
+        window.location.reload();
       }
     },
   });

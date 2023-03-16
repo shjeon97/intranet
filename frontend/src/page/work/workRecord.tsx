@@ -13,7 +13,6 @@ import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Page, PageSize } from "../../constants";
 import { Work } from "../../gql/graphql";
-import { useMeQuery } from "../../hook/query/useMeQuery";
 
 export const SEARCH_WORK_RECORD_QUERY = gql`
   query searchWorkRecord($input: SearchWorkRecordInput!) {
@@ -59,7 +58,6 @@ export const SEARCH_WORK_RECORD_QUERY = gql`
 `;
 
 const WorkRecord = () => {
-  const { data: meData } = useMeQuery();
   const [tableData, setTableData] = useState<any>([]);
   const [
     loadSearchWorkRecordQuery,
@@ -261,18 +259,18 @@ const WorkRecord = () => {
     [pageIndex, pageSize]
   );
   useEffect(() => {
-    if (meData?.me?.id) {
-      loadSearchWorkRecordQuery({
-        variables: {
-          input: {
-            sort: "date",
-            page: pagination.pageIndex + 1,
-            pageSize: pagination.pageSize,
-          },
+    console.log(pagination);
+
+    loadSearchWorkRecordQuery({
+      variables: {
+        input: {
+          sort: "date",
+          page: pagination.pageIndex + 1,
+          pageSize: pagination.pageSize,
         },
-      });
-    }
-  }, [meData?.me?.id, loadSearchWorkRecordQuery, pagination]);
+      },
+    });
+  }, [loadSearchWorkRecordQuery, pagination]);
 
   const table = useReactTable({
     data: tableData,

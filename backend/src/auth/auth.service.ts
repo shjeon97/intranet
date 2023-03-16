@@ -9,7 +9,7 @@ export class AuthService {
   async getAccessToken(user: User): Promise<string | null> {
     return this.jwtService.sign(
       { id: user.id },
-      { secret: process.env.PRIVATE_KEY, expiresIn: '15h' },
+      { secret: process.env.PRIVATE_KEY },
     );
   }
 }
