@@ -220,6 +220,23 @@ export type MutationStartWorkArgs = {
   input: StartWorkInput;
 };
 
+export type Notice = {
+  __typename?: 'Notice';
+  contents: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  id: Scalars['Float'];
+  lastUpdateUserId: Scalars['Float'];
+  status: NoticeStatus;
+  title: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  user: User;
+};
+
+export enum NoticeStatus {
+  Anyone = 'Anyone',
+  Writer = 'Writer'
+}
+
 export type Query = {
   __typename?: 'Query';
   findResting: FindRestingOutput;
@@ -227,6 +244,7 @@ export type Query = {
   getUser: GetUserOutput;
   getUsers: GetUsersOutput;
   me: User;
+  searchNotice: SearchNoticeOutput;
   searchWorkRecord: SearchWorkRecordOutput;
 };
 
@@ -243,6 +261,11 @@ export type QueryFindWorkArgs = {
 
 export type QueryGetUserArgs = {
   input: GetUserInput;
+};
+
+
+export type QuerySearchNoticeArgs = {
+  input: SearchNoticeInput;
 };
 
 
@@ -281,6 +304,26 @@ export enum RoleName {
   Any = 'Any',
   TeamLeader = 'TeamLeader'
 }
+
+export type SearchNoticeInput = {
+  page?: Scalars['Float'];
+  pageSize?: Scalars['Float'];
+  sort?: InputMaybe<Scalars['String']>;
+  type?: InputMaybe<Scalars['String']>;
+  value?: InputMaybe<Scalars['String']>;
+};
+
+export type SearchNoticeOutput = {
+  __typename?: 'SearchNoticeOutput';
+  error?: Maybe<Scalars['String']>;
+  notices?: Maybe<Array<Notice>>;
+  ok: Scalars['Boolean'];
+  sort?: Maybe<Scalars['String']>;
+  totalPage?: Maybe<Scalars['Float']>;
+  totalResult?: Maybe<Scalars['Float']>;
+  type?: Maybe<Scalars['String']>;
+  value?: Maybe<Scalars['String']>;
+};
 
 export type SearchWorkRecordInput = {
   page?: Scalars['Float'];
@@ -513,6 +556,13 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginOutput', ok: boolean, error?: string | null, token?: string | null } };
 
+export type SearchNoticeQueryVariables = Exact<{
+  input: SearchNoticeInput;
+}>;
+
+
+export type SearchNoticeQuery = { __typename?: 'Query', searchNotice: { __typename?: 'SearchNoticeOutput', ok: boolean, error?: string | null, totalPage?: number | null, notices?: Array<{ __typename?: 'Notice', id: number, title: string, contents: string, status: NoticeStatus, lastUpdateUserId: number }> | null } };
+
 export type EditUserMutationVariables = Exact<{
   input: EditUserInput;
 }>;
@@ -525,7 +575,7 @@ export type SearchWorkRecordQueryVariables = Exact<{
 }>;
 
 
-export type SearchWorkRecordQuery = { __typename?: 'Query', searchWorkRecord: { __typename?: 'SearchWorkRecordOutput', ok: boolean, error?: string | null, totalPage?: number | null, works?: Array<{ __typename?: 'Work', date: string, id: number, startTime?: string | null, endTime?: string | null, memo?: string | null, approvalUserId?: number | null, user: { __typename?: 'User', id: number, name: string, position: string, email: string, teams: Array<{ __typename?: 'Team', level: number, name: string }> }, workStatusList?: Array<{ __typename?: 'WorkStatusList', workStatus: { __typename?: 'WorkStatus', name: string, color: string } }> | null }> | null, rests?: Array<{ __typename?: 'Rest', id: number, workId: number, startTime?: string | null, endTime?: string | null, reason?: string | null, totalMinute?: number | null }> | null } };
+export type SearchWorkRecordQuery = { __typename?: 'Query', searchWorkRecord: { __typename?: 'SearchWorkRecordOutput', ok: boolean, error?: string | null, totalPage?: number | null, works?: Array<{ __typename?: 'Work', date: string, id: number, startTime?: string | null, endTime?: string | null, memo?: string | null, overtimeReason?: string | null, approvalUserId?: number | null, user: { __typename?: 'User', id: number, name: string, position: string, email: string, teams: Array<{ __typename?: 'Team', level: number, name: string }> }, workStatusList?: Array<{ __typename?: 'WorkStatusList', workStatus: { __typename?: 'WorkStatus', name: string, color: string } }> | null }> | null, rests?: Array<{ __typename?: 'Rest', id: number, workId: number, startTime?: string | null, endTime?: string | null, reason?: string | null, totalMinute?: number | null }> | null } };
 
 
 export const CreateRestDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createRest"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateRestInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createRest"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateRestMutation, CreateRestMutationVariables>;
@@ -541,5 +591,6 @@ export const EditWorkDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const MeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"birthday"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"roles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"teams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
 export const CreateUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateUserMutation, CreateUserMutationVariables>;
 export const LoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"login"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"LoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"token"}}]}}]}}]} as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;
+export const SearchNoticeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchNotice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SearchNoticeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchNotice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"totalPage"}},{"kind":"Field","name":{"kind":"Name","value":"notices"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"contents"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdateUserId"}}]}}]}}]}}]} as unknown as DocumentNode<SearchNoticeQuery, SearchNoticeQueryVariables>;
 export const EditUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"editUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"editUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<EditUserMutation, EditUserMutationVariables>;
-export const SearchWorkRecordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchWorkRecord"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SearchWorkRecordInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchWorkRecord"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"totalPage"}},{"kind":"Field","name":{"kind":"Name","value":"works"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"teams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"memo"}},{"kind":"Field","name":{"kind":"Name","value":"approvalUserId"}},{"kind":"Field","name":{"kind":"Name","value":"workStatusList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"rests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workId"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"totalMinute"}}]}}]}}]}}]} as unknown as DocumentNode<SearchWorkRecordQuery, SearchWorkRecordQueryVariables>;
+export const SearchWorkRecordDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"searchWorkRecord"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"SearchWorkRecordInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"searchWorkRecord"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"totalPage"}},{"kind":"Field","name":{"kind":"Name","value":"works"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"date"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"teams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"level"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"memo"}},{"kind":"Field","name":{"kind":"Name","value":"overtimeReason"}},{"kind":"Field","name":{"kind":"Name","value":"approvalUserId"}},{"kind":"Field","name":{"kind":"Name","value":"workStatusList"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"workStatus"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"color"}}]}}]}}]}},{"kind":"Field","name":{"kind":"Name","value":"rests"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"workId"}},{"kind":"Field","name":{"kind":"Name","value":"startTime"}},{"kind":"Field","name":{"kind":"Name","value":"endTime"}},{"kind":"Field","name":{"kind":"Name","value":"reason"}},{"kind":"Field","name":{"kind":"Name","value":"totalMinute"}}]}}]}}]}}]} as unknown as DocumentNode<SearchWorkRecordQuery, SearchWorkRecordQueryVariables>;

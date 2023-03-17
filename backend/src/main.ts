@@ -2,12 +2,9 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ApolloError } from 'apollo-server-express';
 import { AppModule } from './app.module';
-import { winstonLogger } from './util/winston.util';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-    logger: winstonLogger,
-  });
+  const app = await NestFactory.create(AppModule);
 
   // 속성 확인
   app.useGlobalPipes(

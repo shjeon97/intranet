@@ -11,7 +11,7 @@ import { FindWorkInput, FindWorkOutput } from './dto/find-work.dto';
 import {
   SearchWorkRecordInput,
   SearchWorkRecordOutput,
-} from './dto/find-work-record-by-userId.dto';
+} from './dto/search-work-record.dto';
 import { RestService, WorkService } from './work.service';
 import { EndRestInput } from './dto/end-rest.dto';
 import { StartRestInput } from './dto/start-rest.dto';

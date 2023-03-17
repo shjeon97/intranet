@@ -12,7 +12,10 @@ import {
 import React, { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { Page, PageSize } from "../../constants";
-import { Work } from "../../gql/graphql";
+import { Role, RoleName, Work } from "../../gql/graphql";
+import useEditWorkMutation from "../../hook/mutation/useEditWorkMutation";
+import { useMeQuery } from "../../hook/query/useMeQuery";
+import { Toast } from "../../lib/sweetalert2/toast";
 
 export const SEARCH_WORK_RECORD_QUERY = gql`
   query searchWorkRecord($input: SearchWorkRecordInput!) {
@@ -59,9 +62,33 @@ export const SEARCH_WORK_RECORD_QUERY = gql`
 
 const WorkRecord = () => {
   const [tableData, setTableData] = useState<any>([]);
+  const { data: meData, loading: meLoading } = useMeQuery();
+  const { editWork, loading: editWorkLoading } = useEditWorkMutation();
+  const handleApproval = async (userId: number, date: string) => {
+    if (!editWorkLoading && !meLoading && meData) {
+      const response = await editWork({
+        userId,
+        date,
+        approvalUserId: meData.me?.id,
+      });
+      if (response.ok) {
+        searchWorkRecordRefetch();
+        Toast.fire({
+          icon: "success",
+          title: "수정완료",
+          timer: 1000,
+          position: "top-end",
+        });
+      }
+    }
+  };
   const [
     loadSearchWorkRecordQuery,
-    { data: searchWorkRecordData, loading: searchWorkRecordLoading },
+    {
+      data: searchWorkRecordData,
+      loading: searchWorkRecordLoading,
+      refetch: searchWorkRecordRefetch,
+    },
   ] = useLazyQuery(SEARCH_WORK_RECORD_QUERY, {
     onCompleted: (data) => {
       setTableData([]);
@@ -166,18 +193,31 @@ const WorkRecord = () => {
                     </div>
                   ),
                   approval: (
-                    <Chip
-                      color={
-                        data.searchWorkRecord?.works.approvalUserId
-                          ? "blue"
-                          : "red"
-                      }
-                      value={
-                        data.searchWorkRecord?.works.approvalUserId
-                          ? "승인"
-                          : "미승인"
-                      }
-                    />
+                    <>
+                      {meData?.me?.roles.find(
+                        (role: Role) => role.name === RoleName.Admin
+                      ) ||
+                      meData?.me?.roles.find(
+                        (role: Role) => role.name === RoleName.TeamLeader
+                      ) ? (
+                        <div
+                          className=" cursor-pointer"
+                          onClick={() =>
+                            handleApproval(work.user.id, work.date)
+                          }
+                        >
+                          <Chip
+                            color={work.approvalUserId ? "blue" : "red"}
+                            value={work.approvalUserId ? "승인" : "미승인"}
+                          />
+                        </div>
+                      ) : (
+                        <Chip
+                          color={work.approvalUserId ? "blue" : "red"}
+                          value={work.approvalUserId ? "승인" : "미승인"}
+                        />
+                      )}
+                    </>
                   ),
                 },
               ];
@@ -259,8 +299,6 @@ const WorkRecord = () => {
     [pageIndex, pageSize]
   );
   useEffect(() => {
-    console.log(pagination);
-
     loadSearchWorkRecordQuery({
       variables: {
         input: {

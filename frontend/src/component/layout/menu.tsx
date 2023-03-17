@@ -15,15 +15,21 @@ const Menu = () => {
 
   return (
     <>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <FontAwesomeIcon size="xl" icon={solid("bullhorn")} className="mr-2" />
-        공지사항
-      </Typography>
+      <Link to={"/notices"}>
+        <Typography
+          as="li"
+          variant="small"
+          color="blue-gray"
+          className="p-1 font-normal"
+        >
+          <FontAwesomeIcon
+            size="xl"
+            icon={solid("bullhorn")}
+            className="mr-2"
+          />
+          공지사항
+        </Typography>
+      </Link>
       <Link to={"/work-record"}>
         <Typography
           as="li"
