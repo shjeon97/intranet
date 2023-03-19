@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CoreOutput } from 'src/common/dto/output.dto';
+import { User } from 'src/user/entity/user.entity';
 import { ILike, Repository } from 'typeorm';
+import { CreateNoticeInput } from './dto/create-notice.dto';
 import { SearchNoticeInput, SearchNoticeOutput } from './dto/search-notice.dto';
 import { Notice } from './entity/notice.entity';
 
@@ -10,6 +13,8 @@ export class NoticeService {
     @InjectRepository(Notice)
     private readonly noticeRepository: Repository<Notice>,
   ) {}
+  private readonly logger = new Logger();
+
   async searchNotice({
     page,
     value,
@@ -41,6 +46,33 @@ export class NoticeService {
       return {
         ok: false,
         error: '공지사항 리스트 찾기 실패',
+      };
+    }
+  }
+
+  async createNotice(
+    user: User,
+    { title, contents, status }: CreateNoticeInput,
+  ): Promise<CoreOutput> {
+    try {
+      await this.noticeRepository.save(
+        this.noticeRepository.create({
+          title,
+          contents,
+          status,
+          user,
+        }),
+      );
+
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      this.logger.error(error);
+
+      return {
+        ok: false,
+        error: '공지 생성 실패',
       };
     }
   }

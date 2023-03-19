@@ -42,7 +42,7 @@ export class Notice extends CoreEntity {
   @IsEnum(NoticeStatus)
   status: NoticeStatus;
 
-  @Field(() => Number)
+  @Field(() => Number, { nullable: true })
   @Column({ nullable: true })
   @IsOptional()
   @IsNumber()

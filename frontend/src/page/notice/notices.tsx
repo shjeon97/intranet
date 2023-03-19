@@ -1,7 +1,14 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql, useLazyQuery, useMutation } from "@apollo/client";
 import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Alert, Button, Input, MobileNav } from "@material-tailwind/react";
+import {
+  Alert,
+  Button,
+  Input,
+  MobileNav,
+  Option,
+  Select,
+} from "@material-tailwind/react";
 import {
   createColumnHelper,
   flexRender,
@@ -10,10 +17,20 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Tiptap from "../../component/Tiptap";
 import { Page, PageSize } from "../../constants";
-import { Notice } from "../../gql/graphql";
+import { Notice, NoticeStatus, CreateNoticeMutation } from "../../gql/graphql";
+import { Toast } from "../../lib/sweetalert2/toast";
+
+const CREATE_NOTICE_MUTATION = gql`
+  mutation createNotice($input: CreateNoticeInput!) {
+    createNotice(input: $input) {
+      ok
+      error
+    }
+  }
+`;
 
 export const SEARCH_NOTICE_QUERY = gql`
   query searchNotice($input: SearchNoticeInput!) {
@@ -33,17 +50,59 @@ export const SEARCH_NOTICE_QUERY = gql`
 `;
 
 export default function Notices() {
+  const [createNotice, { loading: createNoticeLoading }] = useMutation(
+    CREATE_NOTICE_MUTATION,
+    {
+      onCompleted: (data: CreateNoticeMutation) => {
+        const {
+          createNotice: { ok, error },
+        } = data;
+        if (ok) {
+          Toast.fire({
+            icon: "success",
+            title: `공지사항 등록이 완료되었습니다`,
+            position: "top-end",
+            timer: 1200,
+          });
+          setOpenCreateNotice(false);
+          searchNoticeRefetch();
+        } else if (error) {
+          Toast.fire({
+            icon: "error",
+            title: error,
+          });
+        }
+      },
+      onError(error) {
+        error.graphQLErrors.map((graphQLError) =>
+          Toast.fire({
+            icon: "error",
+            title: graphQLError.message,
+          })
+        );
+      },
+    }
+  );
+
   const [tiptap, setTiptap] = useState<any>(null);
   const [tableData, setTableData] = useState<any>([]);
   const [openCreateNotice, setOpenCreateNotice] = useState(false);
   const {
+    getValues,
     register,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({ mode: "onChange" });
+  console.log(getValues());
+
   const [
     loadSearchNoticeQuery,
-    { data: searchNoticeData, loading: searchNoticeLoading },
+    {
+      data: searchNoticeData,
+      loading: searchNoticeLoading,
+      refetch: searchNoticeRefetch,
+    },
   ] = useLazyQuery(SEARCH_NOTICE_QUERY, {
     onCompleted: (data) => {
       setTableData([]);
@@ -113,15 +172,25 @@ export default function Notices() {
     state: {
       pagination,
     },
-    pageCount: searchNoticeData?.searchWorkRecord?.totalPage ?? -1,
+    pageCount: searchNoticeData?.searchNotice?.totalPage ?? -1,
     onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     manualPagination: true,
     debugTable: true,
   });
 
-  const onSubmit = async () => {
-    console.log(tiptap.getHTML());
+  const onSubmit = async (values: any) => {
+    if (!createNoticeLoading) {
+      await createNotice({
+        variables: {
+          input: {
+            status: values.status,
+            title: values.title,
+            contents: tiptap.getHTML(),
+          },
+        },
+      });
+    }
   };
 
   return (
@@ -142,18 +211,53 @@ export default function Notices() {
               />
               <Button type="submit">등록</Button>
             </div>
-            <Input
-              {...register("title", {
-                required: "제목을 입력해 주세요",
-              })}
-              label="제목"
-              size="lg"
-            />
-            {errors.title?.message && (
-              <Alert className="mt-2 p-2" color="red">
-                {`${errors.title?.message}`}
-              </Alert>
-            )}
+            <div className=" grid grid-cols-12">
+              <div className="row-span-1 col-start-1 col-end-9">
+                <Input
+                  {...register("title", {
+                    required: "제목을 입력해 주세요",
+                  })}
+                  label="제목"
+                  size="lg"
+                />
+              </div>
+
+              <div className="row-span-1 col-start-10 col-end-13">
+                <div
+                  {...register("status", {
+                    required: "수정권한을 선택해 주세요",
+                  })}
+                >
+                  <Controller
+                    name="status"
+                    control={control}
+                    defaultValue={NoticeStatus.Anyone}
+                    render={({ field }) => (
+                      <Select label="수정가능" {...field}>
+                        <Option value={NoticeStatus.Anyone}>전인원</Option>
+                        <Option value={NoticeStatus.Writer}>작성자만</Option>
+                      </Select>
+                    )}
+                  />
+                </div>
+              </div>
+              {errors.title?.message && (
+                <Alert
+                  className="row-start-2  col-start-1 col-end-9 mt-2 p-2"
+                  color="red"
+                >
+                  {`${errors.title?.message}`}
+                </Alert>
+              )}
+              {errors.status?.message && (
+                <Alert
+                  className=" row-start-2 col-start-10 col-end-13 mt-2 p-2"
+                  color="red"
+                >
+                  {`${errors.status?.message}`}
+                </Alert>
+              )}
+            </div>
             <div className="h-4" />
             <Tiptap editor={tiptapEditor} />
           </form>
