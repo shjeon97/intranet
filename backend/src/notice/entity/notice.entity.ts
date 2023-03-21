@@ -20,7 +20,7 @@ registerEnumType(NoticeStatus, { name: 'NoticeStatus' });
 @Entity()
 export class Notice extends CoreEntity {
   @Field(() => User)
-  @ManyToOne(() => User)
+  @ManyToOne(() => User, { eager: true })
   user: User;
 
   @Column()

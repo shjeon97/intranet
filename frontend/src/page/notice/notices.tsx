@@ -16,6 +16,7 @@ import {
   PaginationState,
   useReactTable,
 } from "@tanstack/react-table";
+import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import Tiptap from "../../component/Tiptap";
@@ -43,7 +44,12 @@ export const SEARCH_NOTICE_QUERY = gql`
         title
         contents
         status
+        createdAt
         lastUpdateUserId
+        updatedAt
+        user {
+          name
+        }
       }
     }
   }
@@ -66,6 +72,8 @@ export default function Notices() {
           });
           setOpenCreateNotice(false);
           searchNoticeRefetch();
+          reset();
+          tiptap.commands.clearContent(true);
         } else if (error) {
           Toast.fire({
             icon: "error",
@@ -88,13 +96,12 @@ export default function Notices() {
   const [tableData, setTableData] = useState<any>([]);
   const [openCreateNotice, setOpenCreateNotice] = useState(false);
   const {
-    getValues,
     register,
     handleSubmit,
     control,
+    reset,
     formState: { errors },
   } = useForm({ mode: "onChange" });
-  console.log(getValues());
 
   const [
     loadSearchNoticeQuery,
@@ -113,8 +120,10 @@ export default function Notices() {
               return [
                 ...tableData,
                 {
+                  createdAt: format(new Date(notice.createdAt), "yyyy-MM-dd"),
                   title: notice.title,
-                  updatedAt: notice.updatedAt,
+                  updatedAt: format(new Date(notice.updatedAt), "yyyy-MM-dd"),
+                  userName: notice.user.name,
                 },
               ];
             });
@@ -130,8 +139,16 @@ export default function Notices() {
 
   const columnHelper = createColumnHelper<any>();
   const columns = [
+    columnHelper.accessor("createdAt", {
+      header: () => "날짜",
+      cell: (info) => info.getValue(),
+    }),
     columnHelper.accessor("title", {
       header: () => "제목",
+      cell: (info) => info.getValue(),
+    }),
+    columnHelper.accessor("userName", {
+      header: () => "작성자",
       cell: (info) => info.getValue(),
     }),
     columnHelper.accessor("updatedAt", {
@@ -211,8 +228,8 @@ export default function Notices() {
               />
               <Button type="submit">등록</Button>
             </div>
-            <div className=" grid grid-cols-12">
-              <div className="row-span-1 col-start-1 col-end-9">
+            <div className=" lg:grid lg:grid-cols-12 justify-between  gap-2 flex flex-wrap">
+              <div className="row-span-1 col-start-1 xl:col-end-9 col-end-6">
                 <Input
                   {...register("title", {
                     required: "제목을 입력해 주세요",
@@ -221,8 +238,16 @@ export default function Notices() {
                   size="lg"
                 />
               </div>
+              {errors.title?.message && (
+                <Alert
+                  className="row-start-2  col-start-1 xl:col-end-9 col-end-6 mt-2 p-2"
+                  color="red"
+                >
+                  {`${errors.title?.message}`}
+                </Alert>
+              )}
 
-              <div className="row-span-1 col-start-10 col-end-13">
+              <div className="row-span-1 col-start-7 col-end-13 lg:col-start-9 xl:col-start-10">
                 <div
                   {...register("status", {
                     required: "수정권한을 선택해 주세요",
@@ -231,9 +256,8 @@ export default function Notices() {
                   <Controller
                     name="status"
                     control={control}
-                    defaultValue={NoticeStatus.Anyone}
-                    render={({ field }) => (
-                      <Select label="수정가능" {...field}>
+                    render={({ field: { onChange } }) => (
+                      <Select label="수정가능" onChange={onChange}>
                         <Option value={NoticeStatus.Anyone}>전인원</Option>
                         <Option value={NoticeStatus.Writer}>작성자만</Option>
                       </Select>
@@ -241,17 +265,10 @@ export default function Notices() {
                   />
                 </div>
               </div>
-              {errors.title?.message && (
-                <Alert
-                  className="row-start-2  col-start-1 col-end-9 mt-2 p-2"
-                  color="red"
-                >
-                  {`${errors.title?.message}`}
-                </Alert>
-              )}
+
               {errors.status?.message && (
                 <Alert
-                  className=" row-start-2 col-start-10 col-end-13 mt-2 p-2"
+                  className=" row-start-2 col-start-9 xl:col-start-10 col-end-13  mt-2 p-2"
                   color="red"
                 >
                   {`${errors.status?.message}`}
