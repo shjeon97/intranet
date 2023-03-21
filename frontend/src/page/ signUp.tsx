@@ -117,8 +117,8 @@ export const SignUp = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen p-6">
-        <div className=" w-10/12 mx-auto md:w-96">
+      <div className="flex flex-col items-center justify-center h-screen sm:p-6">
+        <div className="w-full sm:w-10/12 mx-auto md:w-96">
           <Card>
             <CardHeader
               variant="gradient"
@@ -164,8 +164,7 @@ export const SignUp = () => {
                   size="lg"
                 />
                 <label className="flex text-sm px-2 -mt-2">
-                  8~16자리 영문 대소문자, 숫자, 특수문자 중 3가지 이상 조합으로
-                  만들어주세요.
+                  8~16자리 영문 대소문자, 숫자, 특수문자 조합으로 만들어주세요.
                   {errors.password?.type === "pattern" && (
                     <IconButton className="flex rounded-full h-7 " color="red">
                       <FontAwesomeIcon icon={solid("xmark")} />

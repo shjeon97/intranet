@@ -83,8 +83,8 @@ export const Login = () => {
   };
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen p-6">
-        <div className=" w-10/12 mx-auto md:w-96">
+      <div className="flex flex-col items-center justify-center h-screen sm:p-6">
+        <div className=" w-full sm:w-10/12   mx-auto md:w-96">
           <Card>
             <CardHeader
               variant="gradient"
