@@ -276,8 +276,8 @@ export default function Notices() {
               )}
             </div>
             <div className="h-4" />
-            <Tiptap editor={tiptapEditor} />
           </form>
+          <Tiptap editor={tiptapEditor} />
         </MobileNav>
       </div>
       <div className="hidden lg:block p-2">

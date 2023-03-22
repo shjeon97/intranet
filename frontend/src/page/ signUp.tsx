@@ -117,7 +117,7 @@ export const SignUp = () => {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center h-screen sm:p-6">
+      <div className="flex flex-col items-center mt-8 sm:p-6">
         <div className="w-full sm:w-10/12 mx-auto md:w-96">
           <Card>
             <CardHeader
