@@ -5,12 +5,21 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { RoleName } from 'src/user/entity/role.entity';
 import { User } from 'src/user/entity/user.entity';
 import { CreateNoticeInput } from './dto/create-notice.dto';
+import { GetNoticeInput, GetNoticeOutput } from './dto/get-notice.dto';
 import { SearchNoticeInput, SearchNoticeOutput } from './dto/search-notice.dto';
 import { NoticeService } from './notice.service';
 
 @Resolver()
 export class NoticeResolver {
   constructor(private noticeService: NoticeService) {}
+
+  @Role([RoleName.Any])
+  @Query(() => GetNoticeOutput)
+  async getNotice(
+    @Args('input') { id }: GetNoticeInput,
+  ): Promise<GetNoticeOutput> {
+    return this.noticeService.getNotice({ id });
+  }
 
   @Query(() => SearchNoticeOutput)
   @Role([RoleName.Any])

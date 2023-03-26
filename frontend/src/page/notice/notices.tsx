@@ -19,6 +19,7 @@ import {
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { Link } from "react-router-dom";
 import Tiptap from "../../component/Tiptap";
 import { Page, PageSize } from "../../constants";
 import { Notice, NoticeStatus, CreateNoticeMutation } from "../../gql/graphql";
@@ -121,7 +122,14 @@ export default function Notices() {
                 ...tableData,
                 {
                   createdAt: format(new Date(notice.createdAt), "yyyy-MM-dd"),
-                  title: notice.title,
+                  title: (
+                    <Link
+                      className=" hover:underline"
+                      to={`/notice/${notice.id}`}
+                    >
+                      {notice.title}
+                    </Link>
+                  ),
                   updatedAt: format(new Date(notice.updatedAt), "yyyy-MM-dd"),
                   userName: notice.user.name,
                 },
@@ -149,10 +157,6 @@ export default function Notices() {
     }),
     columnHelper.accessor("userName", {
       header: () => "작성자",
-      cell: (info) => info.getValue(),
-    }),
-    columnHelper.accessor("updatedAt", {
-      header: () => "마지막 수정일",
       cell: (info) => info.getValue(),
     }),
   ];
@@ -211,7 +215,7 @@ export default function Notices() {
   };
 
   return (
-    <div className="mx-auto xl:max-w-screen-xl overflow-scroll py-2 px-4 lg:px-8 lg:py-4">
+    <div className="mx-auto xl:max-w-screen-xl overflow-auto py-2 px-4 lg:px-8 lg:py-4">
       <div className=" p-2">
         {!openCreateNotice && (
           <Button onClick={() => setOpenCreateNotice(!openCreateNotice)}>
@@ -277,7 +281,9 @@ export default function Notices() {
             </div>
             <div className="h-4" />
           </form>
-          <Tiptap editor={tiptapEditor} />
+          <div className="h-96">
+            <Tiptap editor={tiptapEditor} />
+          </div>
         </MobileNav>
       </div>
       <div className="hidden lg:block p-2">
@@ -357,7 +363,7 @@ export default function Notices() {
                 {searchNoticeLoading ? "Loading..." : null}
               </div>
             </div>
-            <table className="xl:text-lg min-w-full text-md  divide-y divide-gray-400">
+            <table className="min-w-full text-md  divide-y divide-gray-400">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>

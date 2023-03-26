@@ -324,7 +324,7 @@ const WorkRecord = () => {
   });
 
   return (
-    <div className="mx-auto xl:max-w-screen-xl overflow-scroll py-2 px-4 lg:px-8 lg:py-4">
+    <div className="mx-auto xl:max-w-screen-xl overflow-auto py-2 px-4 lg:px-8 lg:py-4">
       <div className="hidden lg:block p-2">
         <div className="-my-2  sm:-mx-6 lg:-mx-8 border-gray-90">
           <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
@@ -402,7 +402,7 @@ const WorkRecord = () => {
                 {searchWorkRecordLoading ? "Loading..." : null}
               </div>
             </div>
-            <table className="xl:text-lg min-w-full text-md  divide-y divide-gray-400">
+            <table className="text-md  divide-y divide-gray-400">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr key={headerGroup.id}>

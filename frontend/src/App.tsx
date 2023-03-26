@@ -10,6 +10,7 @@ import Sidebar from "./component/layout/sidebar";
 import Me from "./page/user/me";
 import WorkRecord from "./page/work/workRecord";
 import Notices from "./page/notice/notices";
+import Notice from "./page/notice/notice";
 
 function App() {
   const pathname = window.location.href;
@@ -44,6 +45,7 @@ function App() {
                 <Route path="/me" element={<Me />} />
                 <Route path="/work-record" element={<WorkRecord />} />
                 <Route path="/notices" element={<Notices />} />
+                <Route path="/notice/:id" element={<Notice />} />
               </>
             ) : (
               <>

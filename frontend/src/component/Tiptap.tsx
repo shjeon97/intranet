@@ -614,7 +614,7 @@ const Tiptap = (props: { editor: (arg0: Editor) => void }) => {
   return (
     <>
       <MenuBar editor={editor} />
-      <div className="overflow-auto h-96 border-2 border-gray-500">
+      <div className="overflow-auto h-full border-2 border-gray-500">
         <EditorContent editor={editor} />
       </div>
     </>

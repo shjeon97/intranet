@@ -4,6 +4,7 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from 'src/user/entity/user.entity';
 import { ILike, Repository } from 'typeorm';
 import { CreateNoticeInput } from './dto/create-notice.dto';
+import { GetNoticeInput, GetNoticeOutput } from './dto/get-notice.dto';
 import { SearchNoticeInput, SearchNoticeOutput } from './dto/search-notice.dto';
 import { Notice } from './entity/notice.entity';
 
@@ -14,6 +15,22 @@ export class NoticeService {
     private readonly noticeRepository: Repository<Notice>,
   ) {}
   private readonly logger = new Logger();
+
+  async getNotice({ id }: GetNoticeInput): Promise<GetNoticeOutput> {
+    try {
+      const notice = await this.noticeRepository.findOne({ where: { id } });
+      return {
+        ok: true,
+        notice,
+      };
+    } catch (error) {
+      this.logger.error(error);
+      return {
+        ok: false,
+        error: '공지 정보 가져오기 실패',
+      };
+    }
+  }
 
   async searchNotice({
     page,

@@ -4,7 +4,7 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { Repository } from 'typeorm';
 import { CreateUserInput } from './dto/create-user.dto';
 import { EditUserInput } from './dto/edit-user.dto';
-import { GetUserInput } from './dto/get-user.dto';
+import { GetUserInput, GetUserOutput } from './dto/get-user.dto';
 import { GetUsersOutput } from './dto/get-users.dto';
 import { User } from './entity/user.entity';
 import * as bcrypt from 'bcrypt';
@@ -94,12 +94,12 @@ export class UserService {
       };
     }
   }
-  async getUser({ id }: GetUserInput): Promise<GetUsersOutput> {
+  async getUser({ id }: GetUserInput): Promise<GetUserOutput> {
     try {
-      const user = await this.userRepository.find({ where: { id } });
+      const user = await this.userRepository.findOne({ where: { id } });
       return {
         ok: true,
-        users: user,
+        user,
       };
     } catch (error) {
       this.logger.error(error);
