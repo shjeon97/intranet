@@ -1,6 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CoreOutput } from 'src/common/dto/output.dto';
+import { LogType } from 'src/log/entity/log.entity';
+import { LogService } from 'src/log/log.service';
 import { User } from 'src/user/entity/user.entity';
 import { ILike, Repository } from 'typeorm';
 import { CreateNoticeInput } from './dto/create-notice.dto';
@@ -14,6 +16,7 @@ export class NoticeService {
   constructor(
     @InjectRepository(Notice)
     private readonly noticeRepository: Repository<Notice>,
+    private readonly logService: LogService,
   ) {}
   private readonly logger = new Logger();
 
@@ -111,8 +114,19 @@ export class NoticeService {
         };
       }
 
+      this.logService.create({
+        type: LogType.editNotice,
+        contents: {
+          noticeId: exist.id,
+          userId: user.id,
+        },
+      });
+
       await this.noticeRepository.save(
-        this.noticeRepository.create({ ...editNoticeInput }),
+        this.noticeRepository.create({
+          ...editNoticeInput,
+          lastUpdateUserId: user.id,
+        }),
       );
       return {
         ok: true,
