@@ -26,8 +26,10 @@ const documents = {
     "\n  query me {\n    me {\n      id\n      email\n      name\n      phone\n      position\n      birthday\n      startDate\n      status\n      roles {\n        name\n      }\n      teams {\n        name\n      }\n    }\n  }\n": types.MeDocument,
     "\n  mutation createUser($input: CreateUserInput!) {\n    createUser(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateUserDocument,
     "\n  mutation login($input: LoginInput!) {\n    login(input: $input) {\n      ok\n      error\n      token\n    }\n  }\n": types.LoginDocument,
+    "\n  mutation editNotice($input: EditNoticeInput!) {\n    editNotice(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditNoticeDocument,
+    "\n  query getNotice($input: GetNoticeInput!) {\n    getNotice(input: $input) {\n      ok\n      error\n      notice {\n        id\n        title\n        contents\n        createdAt\n        updatedAt\n        status\n        lastUpdateUserId\n        user {\n          id\n          name\n        }\n      }\n    }\n  }\n": types.GetNoticeDocument,
     "\n  mutation createNotice($input: CreateNoticeInput!) {\n    createNotice(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateNoticeDocument,
-    "\n  query searchNotice($input: SearchNoticeInput!) {\n    searchNotice(input: $input) {\n      ok\n      error\n      totalPage\n      notices {\n        id\n        title\n        contents\n        status\n        lastUpdateUserId\n      }\n    }\n  }\n": types.SearchNoticeDocument,
+    "\n  query searchNotice($input: SearchNoticeInput!) {\n    searchNotice(input: $input) {\n      ok\n      error\n      totalPage\n      notices {\n        id\n        title\n        contents\n        status\n        createdAt\n        lastUpdateUserId\n        updatedAt\n        user {\n          name\n        }\n      }\n    }\n  }\n": types.SearchNoticeDocument,
     "\n  mutation editUser($input: EditUserInput!) {\n    editUser(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditUserDocument,
     "\n  query searchWorkRecord($input: SearchWorkRecordInput!) {\n    searchWorkRecord(input: $input) {\n      ok\n      error\n      totalPage\n      works {\n        date\n        user {\n          id\n          name\n          position\n          email\n          teams {\n            level\n            name\n          }\n        }\n        id\n        startTime\n        endTime\n        memo\n        overtimeReason\n        approvalUserId\n        workStatusList {\n          workStatus {\n            name\n            color\n          }\n        }\n      }\n      rests {\n        id\n        workId\n        startTime\n        endTime\n        reason\n        totalMinute\n      }\n    }\n  }\n": types.SearchWorkRecordDocument,
 };
@@ -101,11 +103,19 @@ export function graphql(source: "\n  mutation login($input: LoginInput!) {\n    
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function graphql(source: "\n  mutation editNotice($input: EditNoticeInput!) {\n    editNotice(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation editNotice($input: EditNoticeInput!) {\n    editNotice(input: $input) {\n      ok\n      error\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query getNotice($input: GetNoticeInput!) {\n    getNotice(input: $input) {\n      ok\n      error\n      notice {\n        id\n        title\n        contents\n        createdAt\n        updatedAt\n        status\n        lastUpdateUserId\n        user {\n          id\n          name\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query getNotice($input: GetNoticeInput!) {\n    getNotice(input: $input) {\n      ok\n      error\n      notice {\n        id\n        title\n        contents\n        createdAt\n        updatedAt\n        status\n        lastUpdateUserId\n        user {\n          id\n          name\n        }\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function graphql(source: "\n  mutation createNotice($input: CreateNoticeInput!) {\n    createNotice(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation createNotice($input: CreateNoticeInput!) {\n    createNotice(input: $input) {\n      ok\n      error\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
-export function graphql(source: "\n  query searchNotice($input: SearchNoticeInput!) {\n    searchNotice(input: $input) {\n      ok\n      error\n      totalPage\n      notices {\n        id\n        title\n        contents\n        status\n        lastUpdateUserId\n      }\n    }\n  }\n"): (typeof documents)["\n  query searchNotice($input: SearchNoticeInput!) {\n    searchNotice(input: $input) {\n      ok\n      error\n      totalPage\n      notices {\n        id\n        title\n        contents\n        status\n        lastUpdateUserId\n      }\n    }\n  }\n"];
+export function graphql(source: "\n  query searchNotice($input: SearchNoticeInput!) {\n    searchNotice(input: $input) {\n      ok\n      error\n      totalPage\n      notices {\n        id\n        title\n        contents\n        status\n        createdAt\n        lastUpdateUserId\n        updatedAt\n        user {\n          name\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query searchNotice($input: SearchNoticeInput!) {\n    searchNotice(input: $input) {\n      ok\n      error\n      totalPage\n      notices {\n        id\n        title\n        contents\n        status\n        createdAt\n        lastUpdateUserId\n        updatedAt\n        user {\n          name\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

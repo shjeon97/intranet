@@ -1,11 +1,22 @@
-import { gql, useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 import { Alert, Button, Input } from "@material-tailwind/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useParams } from "react-router-dom";
 import Tiptap from "../../component/Tiptap";
+import { EditNoticeMutation } from "../../gql/graphql";
 import { NoticeStatus } from "../../gql/graphql";
 import { useMeQuery } from "../../hook/query/useMeQuery";
+import { Toast } from "../../lib/sweetalert2/toast";
+
+const EDIT_NOTICE_MUTATION = gql`
+  mutation editNotice($input: EditNoticeInput!) {
+    editNotice(input: $input) {
+      ok
+      error
+    }
+  }
+`;
 
 export const GET_NOTICE_QUERY = gql`
   query getNotice($input: GetNoticeInput!) {
@@ -31,18 +42,52 @@ export const GET_NOTICE_QUERY = gql`
 
 export default function Notice() {
   const { id } = useParams();
-  const { data: meData, loading: meLoading } = useMeQuery();
-  const [tiptap, setTiptap] = useState<any>(null);
-  const { data: getNoticeData, loading: getNoticeLoading } = useQuery(
-    GET_NOTICE_QUERY,
+  const [editNotice, { loading: editNoticeLoading }] = useMutation(
+    EDIT_NOTICE_MUTATION,
     {
-      variables: {
-        input: {
-          id: Number(id),
-        },
+      onCompleted: (data: EditNoticeMutation) => {
+        const {
+          editNotice: { ok, error },
+        } = data;
+
+        if (ok) {
+          getNoticeRefetch();
+          Toast.fire({
+            icon: "success",
+            title: `공지사항 수정이 완료되었습니다`,
+            position: "top-end",
+            timer: 1200,
+          });
+        } else if (error) {
+          Toast.fire({
+            icon: "error",
+            title: error,
+          });
+        }
+      },
+      onError(error) {
+        error.graphQLErrors.map((graphQLError) =>
+          Toast.fire({
+            icon: "error",
+            title: graphQLError.message,
+          })
+        );
       },
     }
   );
+  const { data: meData } = useMeQuery();
+  const [tiptap, setTiptap] = useState<any>(null);
+  const {
+    data: getNoticeData,
+    loading: getNoticeLoading,
+    refetch: getNoticeRefetch,
+  } = useQuery(GET_NOTICE_QUERY, {
+    variables: {
+      input: {
+        id: Number(id),
+      },
+    },
+  });
   const {
     register,
     handleSubmit,
@@ -56,7 +101,12 @@ export default function Notice() {
   };
 
   useEffect(() => {
-    if (!getNoticeLoading && getNoticeData?.getNotice?.ok) {
+    if (
+      !editNoticeLoading &&
+      !getNoticeLoading &&
+      getNoticeData?.getNotice?.ok
+    ) {
+      tiptap.commands.clearContent(true);
       tiptap.commands.insertContent(getNoticeData?.getNotice?.notice?.contents);
     }
   }, [
@@ -64,10 +114,21 @@ export default function Notice() {
     getNoticeData?.getNotice?.ok,
     getNoticeData?.getNotice?.notice?.contents,
     tiptap?.commands,
+    editNoticeLoading,
   ]);
 
   const onSubmit = async (values: any) => {
-    console.log(values);
+    if (!editNoticeLoading) {
+      editNotice({
+        variables: {
+          input: {
+            id: getNoticeData?.getNotice?.notice?.id,
+            title: values.title,
+            contents: tiptap.getHTML(),
+          },
+        },
+      });
+    }
   };
 
   return (
@@ -83,14 +144,16 @@ export default function Notice() {
           </div>
           <div className=" lg:grid lg:grid-cols-12 justify-between  gap-2 flex flex-wrap">
             <div className="row-span-1 col-start-1 xl:col-end-9 col-end-6">
-              <Input
-                {...register("title", {
-                  required: "제목을 입력해 주세요",
-                })}
-                label="제목"
-                defaultValue={getNoticeData?.getNotice?.notice?.title}
-                size="lg"
-              />
+              {getNoticeData?.getNotice?.notice && (
+                <Input
+                  defaultValue={getNoticeData?.getNotice?.notice?.title}
+                  {...register("title", {
+                    required: "제목을 입력해 주세요",
+                  })}
+                  label="제목"
+                  size="lg"
+                />
+              )}
             </div>
             {errors.title?.message && (
               <Alert

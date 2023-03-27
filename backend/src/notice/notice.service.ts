@@ -4,9 +4,10 @@ import { CoreOutput } from 'src/common/dto/output.dto';
 import { User } from 'src/user/entity/user.entity';
 import { ILike, Repository } from 'typeorm';
 import { CreateNoticeInput } from './dto/create-notice.dto';
+import { EditNoticeInput } from './dto/edit-notice.dto';
 import { GetNoticeInput, GetNoticeOutput } from './dto/get-notice.dto';
 import { SearchNoticeInput, SearchNoticeOutput } from './dto/search-notice.dto';
-import { Notice } from './entity/notice.entity';
+import { Notice, NoticeStatus } from './entity/notice.entity';
 
 @Injectable()
 export class NoticeService {
@@ -91,6 +92,33 @@ export class NoticeService {
         ok: false,
         error: '공지 생성 실패',
       };
+    }
+  }
+
+  async editNotice(
+    user: User,
+    editNoticeInput: EditNoticeInput,
+  ): Promise<CoreOutput> {
+    try {
+      const exist = await this.noticeRepository.findOne({
+        where: { id: editNoticeInput.id },
+      });
+
+      if (exist.status === NoticeStatus.Writer && user.id !== exist.user.id) {
+        return {
+          ok: false,
+          error: '공지 변경 권한이 없습니다',
+        };
+      }
+
+      await this.noticeRepository.save(
+        this.noticeRepository.create({ ...editNoticeInput }),
+      );
+      return {
+        ok: true,
+      };
+    } catch (error) {
+      return { ok: false, error: '공지 업데이트 실패' };
     }
   }
 }
