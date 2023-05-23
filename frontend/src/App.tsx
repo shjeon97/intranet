@@ -11,6 +11,8 @@ import Me from "./page/user/me";
 import WorkRecord from "./page/work/workRecord";
 import Notices from "./page/notice/notices";
 import Notice from "./page/notice/notice";
+import { Calendar } from "./page/calendar";
+import { MeetingRoom } from "./page/meetingRoom";
 
 function App() {
   const pathname = window.location.href;
@@ -46,6 +48,8 @@ function App() {
                 <Route path="/work-record" element={<WorkRecord />} />
                 <Route path="/notices" element={<Notices />} />
                 <Route path="/notice/:id" element={<Notice />} />
+                <Route path="/calendar" element={<Calendar />} />
+                <Route path="/meeting-room" element={<MeetingRoom />} />
               </>
             ) : (
               <>

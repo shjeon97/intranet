@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Navbar, MobileNav, IconButton } from "@material-tailwind/react";
+import { Navbar, IconButton, Collapse } from "@material-tailwind/react";
 import { LOCAL_STORAGE_TOKEN } from "../../constants";
 import { isLoggedInVar, isSidebarOpenVar } from "../../apollo";
 import { Link, useNavigate } from "react-router-dom";
@@ -11,14 +11,15 @@ import { useMeQuery } from "../../hook/query/useMeQuery";
 
 export default function NavBar() {
   const { data, loading, refetch } = useMeQuery();
-  const [openNav, setOpenNav] = useState(false);
   const navigate = useNavigate();
   const isSidebarOpen = useReactiveVar(isSidebarOpenVar);
+  const [open, setOpen] = useState(false);
+  const toggleOpen = () => setOpen((cur) => !cur);
 
   useEffect(() => {
     window.addEventListener(
       "resize",
-      () => window.innerWidth <= 960 && setOpenNav(false)
+      () => window.innerWidth <= 960 && setOpen(false)
     );
   }, []);
 
@@ -38,7 +39,7 @@ export default function NavBar() {
   };
 
   return (
-    <Navbar className="mx-auto xl:max-w-screen-xl py-2 px-4 lg:px-8 lg:py-4">
+    <Navbar className=" sticky top-0 z-50 mx-auto xl:max-w-screen-xl py-2 px-4 lg:px-8 lg:py-4">
       <div className="container mx-auto flex items-center justify-between text-blue-gray-900">
         <div className="flex">
           {!isSidebarOpen && (
@@ -76,16 +77,16 @@ export default function NavBar() {
           variant="text"
           className="ml-auto h-6 w-6 text-inherit hover:bg-transparent focus:bg-transparent active:bg-transparent lg:hidden"
           ripple={false}
-          onClick={() => setOpenNav(!openNav)}
+          onClick={toggleOpen}
         >
-          {openNav ? (
+          {open ? (
             <FontAwesomeIcon size="2xl" icon={solid("xmark")} />
           ) : (
             <FontAwesomeIcon size="2xl" icon={solid("bars")} />
           )}
         </IconButton>
       </div>
-      <MobileNav open={openNav}>
+      <Collapse open={open}>
         <div className="container mx-auto flex flex-col gap-2">
           <Menu />
           <div className="flex items-center justify-between">
@@ -107,7 +108,7 @@ export default function NavBar() {
             />
           </div>
         </div>
-      </MobileNav>
+      </Collapse>
     </Navbar>
   );
 }

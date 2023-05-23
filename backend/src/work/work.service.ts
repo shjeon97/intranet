@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
   format,
@@ -40,6 +40,7 @@ export class WorkService {
     private readonly userRepository: Repository<User>,
     @InjectRepository(Rest) private readonly restRepository: Repository<Rest>,
   ) {}
+  private readonly logger = new Logger();
 
   async findWork({ userId, date }: FindWorkInput): Promise<FindWorkOutput> {
     try {
@@ -54,7 +55,7 @@ export class WorkService {
         work,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -131,7 +132,7 @@ export class WorkService {
         totalPage: Math.ceil(totalResult / pageSize),
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -175,7 +176,7 @@ export class WorkService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -238,7 +239,7 @@ export class WorkService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -287,7 +288,7 @@ export class WorkService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -373,7 +374,7 @@ export class WorkService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -389,6 +390,7 @@ export class RestService {
     @InjectRepository(Work) private readonly workRepository: Repository<Work>,
     @InjectRepository(Rest) private readonly restRepository: Repository<Rest>,
   ) {}
+  private readonly logger = new Logger();
 
   async createRest(createRestInput: CreateRestInput): Promise<CoreOutput> {
     try {
@@ -414,7 +416,7 @@ export class RestService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -448,7 +450,7 @@ export class RestService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -475,7 +477,7 @@ export class RestService {
         rest,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -507,7 +509,7 @@ export class RestService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,
@@ -547,7 +549,7 @@ export class RestService {
         ok: true,
       };
     } catch (error) {
-      console.log(error);
+      this.logger.error(error);
 
       return {
         ok: false,

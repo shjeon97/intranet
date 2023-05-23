@@ -45,32 +45,36 @@ const Menu = () => {
           출퇴근기록
         </Typography>
       </Link>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <FontAwesomeIcon
-          size="xl"
-          icon={solid("calendar-days")}
-          className="mr-2"
-        />
-        근무일정
-      </Typography>
-      <Typography
-        as="li"
-        variant="small"
-        color="blue-gray"
-        className="p-1 font-normal"
-      >
-        <FontAwesomeIcon
-          size="xl"
-          icon={solid("person-booth")}
-          className="mr-2"
-        />
-        회의실
-      </Typography>
+      <Link to={"/calendar"}>
+        <Typography
+          as="li"
+          variant="small"
+          color="blue-gray"
+          className="p-1 font-normal"
+        >
+          <FontAwesomeIcon
+            size="xl"
+            icon={solid("calendar-days")}
+            className="mr-2"
+          />
+          근무일정
+        </Typography>
+      </Link>
+      <Link to={"/meeting-room"}>
+        <Typography
+          as="li"
+          variant="small"
+          color="blue-gray"
+          className="p-1 font-normal"
+        >
+          <FontAwesomeIcon
+            size="xl"
+            icon={solid("person-booth")}
+            className="mr-2"
+          />
+          회의실
+        </Typography>
+      </Link>
       {data?.me?.roles.find((role: Role) => role.name === "Admin") && (
         <Typography
           as="li"

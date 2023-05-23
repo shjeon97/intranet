@@ -4,8 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   Alert,
   Button,
+  Collapse,
   Input,
-  MobileNav,
   Option,
   Select,
 } from "@material-tailwind/react";
@@ -71,7 +71,7 @@ export default function Notices() {
             position: "top-end",
             timer: 1200,
           });
-          setOpenCreateNotice(false);
+          setOpen(false);
           searchNoticeRefetch();
           reset();
           tiptap.commands.clearContent(true);
@@ -95,7 +95,8 @@ export default function Notices() {
 
   const [tiptap, setTiptap] = useState<any>(null);
   const [tableData, setTableData] = useState<any>([]);
-  const [openCreateNotice, setOpenCreateNotice] = useState(false);
+  const [open, setOpen] = useState(false);
+  const toggleOpen = () => setOpen((cur) => !cur);
   const {
     register,
     handleSubmit,
@@ -217,16 +218,12 @@ export default function Notices() {
   return (
     <div className="mx-auto xl:max-w-screen-xl overflow-auto py-2 px-4 lg:px-8 lg:py-4">
       <div className=" p-2">
-        {!openCreateNotice && (
-          <Button onClick={() => setOpenCreateNotice(!openCreateNotice)}>
-            공지 등록
-          </Button>
-        )}
-        <MobileNav open={openCreateNotice}>
+        {!open && <Button onClick={toggleOpen}>공지 등록</Button>}
+        <Collapse open={open}>
           <form onSubmit={handleSubmit(onSubmit)}>
             <div className="flex justify-between mb-2">
               <FontAwesomeIcon
-                onClick={() => setOpenCreateNotice(!openCreateNotice)}
+                onClick={toggleOpen}
                 size="2xl"
                 icon={solid("xmark")}
               />
@@ -284,7 +281,7 @@ export default function Notices() {
           <div className="h-96">
             <Tiptap editor={tiptapEditor} />
           </div>
-        </MobileNav>
+        </Collapse>
       </div>
       <div className="hidden lg:block p-2">
         <div className="-my-2  sm:-mx-6 lg:-mx-8 border-gray-90">

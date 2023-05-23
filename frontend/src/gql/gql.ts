@@ -26,6 +26,8 @@ const documents = {
     "\n  query me {\n    me {\n      id\n      email\n      name\n      phone\n      position\n      birthday\n      startDate\n      status\n      roles {\n        name\n      }\n      teams {\n        name\n      }\n    }\n  }\n": types.MeDocument,
     "\n  mutation createUser($input: CreateUserInput!) {\n    createUser(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateUserDocument,
     "\n  mutation login($input: LoginInput!) {\n    login(input: $input) {\n      ok\n      error\n      token\n    }\n  }\n": types.LoginDocument,
+    "\n  query allMeetingRoom {\n    allMeetingRoom {\n      ok\n      error\n      meetingRooms {\n        name\n      }\n    }\n  }\n": types.AllMeetingRoomDocument,
+    "\n  mutation createReservation($input: CreateReservationInput!) {\n    createReservation(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateReservationDocument,
     "\n  mutation editNotice($input: EditNoticeInput!) {\n    editNotice(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditNoticeDocument,
     "\n  query getNotice($input: GetNoticeInput!) {\n    getNotice(input: $input) {\n      ok\n      error\n      notice {\n        id\n        title\n        contents\n        createdAt\n        updatedAt\n        status\n        lastUpdateUserId\n        user {\n          id\n          name\n        }\n      }\n    }\n  }\n": types.GetNoticeDocument,
     "\n  mutation createNotice($input: CreateNoticeInput!) {\n    createNotice(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateNoticeDocument,
@@ -100,6 +102,14 @@ export function graphql(source: "\n  mutation createUser($input: CreateUserInput
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation login($input: LoginInput!) {\n    login(input: $input) {\n      ok\n      error\n      token\n    }\n  }\n"): (typeof documents)["\n  mutation login($input: LoginInput!) {\n    login(input: $input) {\n      ok\n      error\n      token\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query allMeetingRoom {\n    allMeetingRoom {\n      ok\n      error\n      meetingRooms {\n        name\n      }\n    }\n  }\n"): (typeof documents)["\n  query allMeetingRoom {\n    allMeetingRoom {\n      ok\n      error\n      meetingRooms {\n        name\n      }\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  mutation createReservation($input: CreateReservationInput!) {\n    createReservation(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation createReservation($input: CreateReservationInput!) {\n    createReservation(input: $input) {\n      ok\n      error\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

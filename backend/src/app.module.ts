@@ -18,6 +18,9 @@ import { WorkModule } from './work/work.module';
 import { Work } from './work/entity/work.entity';
 import { WorkStatus } from './work/entity/work-status.entity';
 import { Rest } from './work/entity/rest.entity';
+import { MeetingRoomModule } from './meeting-room/meeting-room.module';
+import { MeetingRoom } from './meeting-room/entity/meeting-room.entity';
+import { Reservation } from './meeting-room/entity/reservation.entity';
 
 @Module({
   imports: [
@@ -73,7 +76,18 @@ import { Rest } from './work/entity/rest.entity';
       // hot load 사용시 선언
       keepConnectionAlive: true,
       // 사용할 entity들 선언
-      entities: [User, Role, Team, Notice, Log, Work, WorkStatus, Rest],
+      entities: [
+        User,
+        Role,
+        Team,
+        Notice,
+        Log,
+        Work,
+        WorkStatus,
+        Rest,
+        MeetingRoom,
+        Reservation,
+      ],
     }),
     UserModule,
     CommonModule,
@@ -81,6 +95,7 @@ import { Rest } from './work/entity/rest.entity';
     NoticeModule,
     LogModule,
     WorkModule,
+    MeetingRoomModule,
   ],
   controllers: [],
   providers: [],

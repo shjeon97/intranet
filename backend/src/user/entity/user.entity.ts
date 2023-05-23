@@ -24,6 +24,7 @@ import {
 import { Role } from './role.entity';
 import { Team } from './team.entity';
 import * as bcrypt from 'bcrypt';
+import { Reservation } from 'src/meeting-room/entity/reservation.entity';
 
 export enum UserStatus {
   Unapproved = '미승인',
@@ -89,6 +90,10 @@ export class User extends CoreEntity {
   @ManyToMany(() => Team, (teams) => teams.users, { eager: true })
   @JoinTable({ name: 'user_team' })
   teams: Team[];
+
+  @Field(() => [Reservation])
+  @ManyToMany(() => Reservation, (reservations) => reservations.users)
+  reservations: Reservation[];
 
   @BeforeInsert()
   @BeforeUpdate()

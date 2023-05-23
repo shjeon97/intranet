@@ -16,16 +16,37 @@ export type Scalars = {
   DateTime: any;
 };
 
+export type AllMeetingRoomOutput = {
+  __typename?: 'AllMeetingRoomOutput';
+  error?: Maybe<Scalars['String']>;
+  meetingRooms?: Maybe<Array<MeetingRoom>>;
+  ok: Scalars['Boolean'];
+};
+
 export type CoreOutput = {
   __typename?: 'CoreOutput';
   error?: Maybe<Scalars['String']>;
   ok: Scalars['Boolean'];
 };
 
+export type CreateMeetingRoomInput = {
+  name: Scalars['String'];
+};
+
 export type CreateNoticeInput = {
   contents: Scalars['String'];
   status: NoticeStatus;
   title: Scalars['String'];
+};
+
+export type CreateReservationInput = {
+  date?: InputMaybe<Scalars['String']>;
+  endTime?: InputMaybe<Scalars['String']>;
+  meetingRoomId: Scalars['Float'];
+  reason?: InputMaybe<Scalars['String']>;
+  startTime?: InputMaybe<Scalars['String']>;
+  title?: InputMaybe<Scalars['String']>;
+  userIds: Array<Scalars['Float']>;
 };
 
 export type CreateRestInput = {
@@ -109,6 +130,17 @@ export type EndWorkInput = {
   userId?: InputMaybe<Scalars['Float']>;
 };
 
+export type FindReservationsInput = {
+  date: Scalars['String'];
+};
+
+export type FindReservationsOutput = {
+  __typename?: 'FindReservationsOutput';
+  error?: Maybe<Scalars['String']>;
+  ok: Scalars['Boolean'];
+  reservations?: Maybe<Array<Reservation>>;
+};
+
 export type FindRestingInput = {
   workId: Scalars['Float'];
 };
@@ -173,9 +205,23 @@ export type LoginOutput = {
   token?: Maybe<Scalars['String']>;
 };
 
+export type MeetingRoom = {
+  __typename?: 'MeetingRoom';
+  createdAt: Scalars['DateTime'];
+  id: Scalars['Float'];
+  name: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+};
+
+export type MeetingRoomInputType = {
+  name: Scalars['String'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
+  createMeetingRoom: CoreOutput;
   createNotice: CoreOutput;
+  createReservation: CoreOutput;
   createRest: CoreOutput;
   createUser: CoreOutput;
   createWork: CoreOutput;
@@ -191,8 +237,18 @@ export type Mutation = {
 };
 
 
+export type MutationCreateMeetingRoomArgs = {
+  input: CreateMeetingRoomInput;
+};
+
+
 export type MutationCreateNoticeArgs = {
   input: CreateNoticeInput;
+};
+
+
+export type MutationCreateReservationArgs = {
+  input: CreateReservationInput;
 };
 
 
@@ -274,6 +330,8 @@ export enum NoticeStatus {
 
 export type Query = {
   __typename?: 'Query';
+  allMeetingRoom: AllMeetingRoomOutput;
+  findReservation: FindReservationsOutput;
   findResting: FindRestingOutput;
   findWork: FindWorkOutput;
   getNotice: GetNoticeOutput;
@@ -282,6 +340,11 @@ export type Query = {
   me: User;
   searchNotice: SearchNoticeOutput;
   searchWorkRecord: SearchWorkRecordOutput;
+};
+
+
+export type QueryFindReservationArgs = {
+  input: FindReservationsInput;
 };
 
 
@@ -312,6 +375,30 @@ export type QuerySearchNoticeArgs = {
 
 export type QuerySearchWorkRecordArgs = {
   input: SearchWorkRecordInput;
+};
+
+export type Reservation = {
+  __typename?: 'Reservation';
+  createdAt: Scalars['DateTime'];
+  date: Scalars['String'];
+  endTime?: Maybe<Scalars['String']>;
+  id: Scalars['Float'];
+  meetingRoom: MeetingRoom;
+  reason: Scalars['String'];
+  startTime?: Maybe<Scalars['String']>;
+  title: Scalars['String'];
+  updatedAt: Scalars['DateTime'];
+  users: Array<User>;
+};
+
+export type ReservationInputType = {
+  date: Scalars['String'];
+  endTime?: InputMaybe<Scalars['String']>;
+  meetingRoom: MeetingRoomInputType;
+  reason: Scalars['String'];
+  startTime?: InputMaybe<Scalars['String']>;
+  title: Scalars['String'];
+  users: Array<UserInputType>;
 };
 
 export type Rest = {
@@ -428,6 +515,7 @@ export type User = {
   password: Scalars['String'];
   phone: Scalars['String'];
   position: Scalars['String'];
+  reservations: Array<Reservation>;
   roles: Array<Role>;
   startDate: Scalars['String'];
   status: UserStatus;
@@ -442,6 +530,7 @@ export type UserInputType = {
   password: Scalars['String'];
   phone: Scalars['String'];
   position: Scalars['String'];
+  reservations: Array<ReservationInputType>;
   roles: Array<RoleInputType>;
   startDate: Scalars['String'];
   status: UserStatus;
@@ -597,6 +686,18 @@ export type LoginMutationVariables = Exact<{
 
 export type LoginMutation = { __typename?: 'Mutation', login: { __typename?: 'LoginOutput', ok: boolean, error?: string | null, token?: string | null } };
 
+export type AllMeetingRoomQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllMeetingRoomQuery = { __typename?: 'Query', allMeetingRoom: { __typename?: 'AllMeetingRoomOutput', ok: boolean, error?: string | null, meetingRooms?: Array<{ __typename?: 'MeetingRoom', name: string }> | null } };
+
+export type CreateReservationMutationVariables = Exact<{
+  input: CreateReservationInput;
+}>;
+
+
+export type CreateReservationMutation = { __typename?: 'Mutation', createReservation: { __typename?: 'CoreOutput', ok: boolean, error?: string | null } };
+
 export type EditNoticeMutationVariables = Exact<{
   input: EditNoticeInput;
 }>;
@@ -653,6 +754,8 @@ export const EditWorkDocument = {"kind":"Document","definitions":[{"kind":"Opera
 export const MeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"me"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"email"}},{"kind":"Field","name":{"kind":"Name","value":"name"}},{"kind":"Field","name":{"kind":"Name","value":"phone"}},{"kind":"Field","name":{"kind":"Name","value":"position"}},{"kind":"Field","name":{"kind":"Name","value":"birthday"}},{"kind":"Field","name":{"kind":"Name","value":"startDate"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"roles"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}},{"kind":"Field","name":{"kind":"Name","value":"teams"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<MeQuery, MeQueryVariables>;
 export const CreateUserDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createUser"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateUserInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createUser"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateUserMutation, CreateUserMutationVariables>;
 export const LoginDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"login"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"LoginInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"login"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"token"}}]}}]}}]} as unknown as DocumentNode<LoginMutation, LoginMutationVariables>;
+export const AllMeetingRoomDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"allMeetingRoom"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"allMeetingRoom"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"meetingRooms"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]} as unknown as DocumentNode<AllMeetingRoomQuery, AllMeetingRoomQueryVariables>;
+export const CreateReservationDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createReservation"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateReservationInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createReservation"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateReservationMutation, CreateReservationMutationVariables>;
 export const EditNoticeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"editNotice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"EditNoticeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"editNotice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<EditNoticeMutation, EditNoticeMutationVariables>;
 export const GetNoticeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"query","name":{"kind":"Name","value":"getNotice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"GetNoticeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"getNotice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}},{"kind":"Field","name":{"kind":"Name","value":"notice"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"title"}},{"kind":"Field","name":{"kind":"Name","value":"contents"}},{"kind":"Field","name":{"kind":"Name","value":"createdAt"}},{"kind":"Field","name":{"kind":"Name","value":"updatedAt"}},{"kind":"Field","name":{"kind":"Name","value":"status"}},{"kind":"Field","name":{"kind":"Name","value":"lastUpdateUserId"}},{"kind":"Field","name":{"kind":"Name","value":"user"},"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"id"}},{"kind":"Field","name":{"kind":"Name","value":"name"}}]}}]}}]}}]}}]} as unknown as DocumentNode<GetNoticeQuery, GetNoticeQueryVariables>;
 export const CreateNoticeDocument = {"kind":"Document","definitions":[{"kind":"OperationDefinition","operation":"mutation","name":{"kind":"Name","value":"createNotice"},"variableDefinitions":[{"kind":"VariableDefinition","variable":{"kind":"Variable","name":{"kind":"Name","value":"input"}},"type":{"kind":"NonNullType","type":{"kind":"NamedType","name":{"kind":"Name","value":"CreateNoticeInput"}}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"createNotice"},"arguments":[{"kind":"Argument","name":{"kind":"Name","value":"input"},"value":{"kind":"Variable","name":{"kind":"Name","value":"input"}}}],"selectionSet":{"kind":"SelectionSet","selections":[{"kind":"Field","name":{"kind":"Name","value":"ok"}},{"kind":"Field","name":{"kind":"Name","value":"error"}}]}}]}}]} as unknown as DocumentNode<CreateNoticeMutation, CreateNoticeMutationVariables>;
