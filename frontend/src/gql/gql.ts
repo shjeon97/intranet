@@ -23,6 +23,7 @@ const documents = {
     "\n  mutation createWork($input: CreateWorkInput!) {\n    createWork(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateWorkDocument,
     "\n  mutation editRest($input: EditRestInput!) {\n    editRest(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditRestDocument,
     "\n  mutation editWork($input: EditWorkInput!) {\n    editWork(input: $input) {\n      ok\n      error\n    }\n  }\n": types.EditWorkDocument,
+    "\n  query getUsers {\n    getUsers {\n      ok\n      error\n      users {\n        id\n        createdAt\n        updatedAt\n        email\n        position\n        name\n        birthday\n        startDate\n        phone\n        status\n        teams {\n          name\n        }\n      }\n    }\n  }\n": types.GetUsersDocument,
     "\n  query me {\n    me {\n      id\n      email\n      name\n      phone\n      position\n      birthday\n      startDate\n      status\n      roles {\n        name\n      }\n      teams {\n        name\n      }\n    }\n  }\n": types.MeDocument,
     "\n  mutation createUser($input: CreateUserInput!) {\n    createUser(input: $input) {\n      ok\n      error\n    }\n  }\n": types.CreateUserDocument,
     "\n  mutation login($input: LoginInput!) {\n    login(input: $input) {\n      ok\n      error\n      token\n    }\n  }\n": types.LoginDocument,
@@ -90,6 +91,10 @@ export function graphql(source: "\n  mutation editRest($input: EditRestInput!) {
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function graphql(source: "\n  mutation editWork($input: EditWorkInput!) {\n    editWork(input: $input) {\n      ok\n      error\n    }\n  }\n"): (typeof documents)["\n  mutation editWork($input: EditWorkInput!) {\n    editWork(input: $input) {\n      ok\n      error\n    }\n  }\n"];
+/**
+ * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function graphql(source: "\n  query getUsers {\n    getUsers {\n      ok\n      error\n      users {\n        id\n        createdAt\n        updatedAt\n        email\n        position\n        name\n        birthday\n        startDate\n        phone\n        status\n        teams {\n          name\n        }\n      }\n    }\n  }\n"): (typeof documents)["\n  query getUsers {\n    getUsers {\n      ok\n      error\n      users {\n        id\n        createdAt\n        updatedAt\n        email\n        position\n        name\n        birthday\n        startDate\n        phone\n        status\n        teams {\n          name\n        }\n      }\n    }\n  }\n"];
 /**
  * The graphql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

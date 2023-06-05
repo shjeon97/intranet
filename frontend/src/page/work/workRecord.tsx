@@ -201,7 +201,7 @@ const WorkRecord = () => {
                         (role: Role) => role.name === RoleName.TeamLeader
                       ) ? (
                         <div
-                          className=" cursor-pointer"
+                          className=" cursor-pointer text-center"
                           onClick={() =>
                             handleApproval(work.user.id, work.date)
                           }

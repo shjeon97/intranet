@@ -7,14 +7,23 @@ import {
   Dialog,
   Input,
   Option,
-  Select,
+  Select as MaterialSelect,
   Typography,
+  Textarea,
+  Alert,
 } from "@material-tailwind/react";
 import { format } from "date-fns";
 import React, { useEffect, useState } from "react";
 import Selecto from "react-selecto";
 import { Toast } from "../lib/sweetalert2/toast";
-import { CreateReservationMutation } from "../gql/graphql";
+import {
+  CreateReservationInput,
+  CreateReservationMutation,
+  User,
+} from "../gql/graphql";
+import Select from "react-select";
+import { useGetUsersQuery } from "../hook/query/useGetUsersQuery";
+import { SubmitHandler, useForm } from "react-hook-form";
 
 export const ALL_MEETING_ROOM_QUERY = gql`
   query allMeetingRoom {
@@ -23,6 +32,7 @@ export const ALL_MEETING_ROOM_QUERY = gql`
       error
       meetingRooms {
         name
+        id
       }
     }
   }
@@ -37,6 +47,8 @@ const CREATE_RESERVATION_MUTATION = gql`
   }
 `;
 
+interface IFormInput extends CreateReservationInput {}
+
 export const MeetingRoom = () => {
   const { data } = useQuery(ALL_MEETING_ROOM_QUERY);
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
@@ -44,10 +56,36 @@ export const MeetingRoom = () => {
   const [selectEndTime, setSelectEndTime] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
   const [meetingRoomName, setMeetingRoomName] = useState<string | null>(null);
+  const [meetingRoomId, setMeetingRoomId] = useState<number | null>(null);
+  const [selectedOption, setSelectedOption] = useState<any>(null);
   const handleOpen = () => setOpen((cur) => !cur);
   const [size, setSize] = useState<"xs" | "sm" | "md" | "lg" | "xl" | "xxl">(
     "md"
   );
+  const { data: getUsersData } = useGetUsersQuery();
+  const [users, setUsers] = useState<{ value: number; label: string }[]>([]);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<IFormInput>({ mode: "onChange" });
+
+  useEffect(() => {
+    if (getUsersData?.getUsers.users) {
+      getUsersData?.getUsers.users.map((user: User) => {
+        return setUsers((users) => [
+          ...users,
+          {
+            value: user.id,
+            label: `${user.teams[0]?.name ? user.teams[0]?.name : ""} ${
+              user.name
+            }`,
+          },
+        ]);
+      });
+    }
+  }, [getUsersData?.getUsers.ok, getUsersData?.getUsers.users]);
 
   useEffect(() => {
     window.addEventListener(
@@ -69,6 +107,9 @@ export const MeetingRoom = () => {
         const {
           createReservation: { ok, error },
         } = data;
+        setOpen(false);
+        setSelectedOption(null);
+        reset();
         if (ok) {
           Toast.fire({
             icon: "success",
@@ -122,6 +163,34 @@ export const MeetingRoom = () => {
     "20:30 ~ 20:00",
   ];
 
+  const onSubmit: SubmitHandler<IFormInput> = async ({ reason, title }) => {
+    if (createReservationLoading) {
+      return;
+    }
+
+    if (!selectedOption || !selectedOption[0]?.value) {
+      return setSelectedOption([]);
+    }
+
+    let userIds: Number[] = [];
+
+    selectedOption.map((option: any) => userIds.push(option.value));
+
+    await createReservation({
+      variables: {
+        input: {
+          date,
+          startTime: selectStartTime?.split("~")[0],
+          endTime: selectEndTime?.split("~")[1],
+          meetingRoomId,
+          reason,
+          title,
+          userIds,
+        },
+      },
+    });
+  };
+
   return (
     <div className="mx-auto xl:max-w-screen-xl overflow-auto py-2 px-4 lg:px-8 lg:py-4">
       <div className="flex items-center justify-between mb-5">
@@ -141,7 +210,7 @@ export const MeetingRoom = () => {
           data?.allMeetingRoom?.meetingRooms.map(
             (meetingRoom: any, index: number) => {
               return (
-                <div key={index} className="flex gap-14 text-lg">
+                <div key={index} className="flex gap-5 text-lg">
                   <Selecto
                     dragContainer={".elements"}
                     selectableTargets={["#selecto .cube"]}
@@ -166,6 +235,9 @@ export const MeetingRoom = () => {
                         setMeetingRoomName(
                           el.getAttribute("data-meeting-room-name")
                         );
+                        setMeetingRoomId(
+                          Number(el.getAttribute("data-meeting-room-id"))
+                        );
                       });
                       setOpen(true);
                     }}
@@ -176,7 +248,7 @@ export const MeetingRoom = () => {
                     continueSelectWithoutDeselect={true}
                     ratio={0}
                   ></Selecto>
-                  <div className="elements selecto-area h-screen" id="selecto">
+                  <div className="elements selecto-area" id="selecto">
                     <Typography
                       variant="h5"
                       color="white"
@@ -184,11 +256,12 @@ export const MeetingRoom = () => {
                     >
                       {meetingRoom.name}
                     </Typography>
-                    <div className="overflow-auto h-3/4 w-40">
+                    <div className="overflow-auto w-36">
                       {reservationTimeList.map((reservationTime) => (
                         <div
                           data-value={reservationTime}
                           data-meeting-room-name={meetingRoom.name}
+                          data-meeting-room-id={meetingRoom.id}
                           key={reservationTime}
                           className="cube rounded-xl border border-gray-200 p-2 "
                         >
@@ -208,48 +281,97 @@ export const MeetingRoom = () => {
         open={open}
         size={size}
         handler={handleOpen}
-        className="bg-transparent shadow-none"
+        className="bg-transparent shadow-none "
       >
         <Card>
-          <CardBody className="flex flex-col gap-4">
-            <Typography variant="h3">회의실 예약</Typography>
-            <Typography variant="h5">{meetingRoomName}</Typography>
-            <Input label="제목" />
-            <Select
-              label="시작"
-              value={selectStartTime || ""}
-              onChange={(value) => value && setSelectStartTime(value)}
-            >
-              {reservationTimeList.map((reservationTime) => (
-                <Option key={reservationTime} value={reservationTime}>
-                  {reservationTime}
-                </Option>
-              ))}
-            </Select>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <CardBody className="flex flex-col gap-4">
+              <Typography variant="h3">회의실 예약</Typography>
+              <Typography variant="h5">회의실 : {meetingRoomName}</Typography>
+              <div>
+                <Input
+                  {...register("title", {
+                    required: "제목을 입력해 주세요",
+                  })}
+                  label="제목"
+                />
+                {errors.title?.message && (
+                  <Alert
+                    className="row-start-2 font-medium col-start-1 xl:col-end-9 col-end-6 mt-2 p-2"
+                    color="red"
+                  >
+                    {`${errors.title?.message}`}
+                  </Alert>
+                )}
+              </div>
+              <MaterialSelect
+                value={selectStartTime || ""}
+                label="시작"
+                onChange={(value) => value && setSelectStartTime(value)}
+              >
+                {reservationTimeList.map((reservationTime) => (
+                  <Option key={reservationTime} value={reservationTime}>
+                    {reservationTime}
+                  </Option>
+                ))}
+              </MaterialSelect>
 
-            <Select
-              label="종료"
-              value={selectEndTime || ""}
-              onChange={(value) => value && setSelectEndTime(value)}
-            >
-              {reservationTimeList.map((reservationTime) => (
-                <Option key={reservationTime} value={reservationTime}>
-                  {reservationTime}
-                </Option>
-              ))}
-            </Select>
-            <Input label="사유" />
-          </CardBody>
-          <CardFooter className="pt-0">
-            <div className="flex gap-3">
-              <Button color="red" onClick={handleOpen} fullWidth>
-                취소
-              </Button>
-              <Button onClick={handleOpen} fullWidth>
-                예약
-              </Button>
-            </div>
-          </CardFooter>
+              <MaterialSelect
+                value={selectEndTime || ""}
+                label="종료"
+                onChange={(value) => value && setSelectEndTime(value)}
+              >
+                {reservationTimeList.map((reservationTime) => (
+                  <Option key={reservationTime} value={reservationTime}>
+                    {reservationTime}
+                  </Option>
+                ))}
+              </MaterialSelect>
+              <div>
+                <Textarea
+                  {...register("reason", {
+                    required: "사유를 입력해 주세요",
+                  })}
+                  label="사유"
+                />
+                {errors.reason?.message && (
+                  <Alert
+                    className="row-start-2 font-medium  col-start-1 xl:col-end-9 col-end-6 mt-2 p-2"
+                    color="red"
+                  >
+                    {`${errors.reason?.message}`}
+                  </Alert>
+                )}
+              </div>
+              <div>
+                <div className=" font-medium text-sm mb-2">참여인원</div>
+                <Select
+                  onChange={setSelectedOption}
+                  options={users}
+                  isMulti
+                  className="font-bold"
+                />
+                {selectedOption && !selectedOption[0]?.value && (
+                  <Alert
+                    className="row-start-2 font-medium  col-start-1 xl:col-end-9 col-end-6 mt-2 p-2"
+                    color="red"
+                  >
+                    참여인원을 입력해주세요.
+                  </Alert>
+                )}
+              </div>
+            </CardBody>
+            <CardFooter className="pt-0">
+              <div className="flex gap-3">
+                <Button color="red" onClick={handleOpen} fullWidth>
+                  취소
+                </Button>
+                <Button type="submit" fullWidth>
+                  예약
+                </Button>
+              </div>
+            </CardFooter>
+          </form>
         </Card>
       </Dialog>
     </div>
