@@ -112,14 +112,13 @@ export class ReservationService {
       });
 
       findReservations.map((reservation) => {
-        console.log(
-          new Date(createReservationInput.startTime),
-          new Date(reservation.startTime),
-        );
+        console.log(new Date(reservation.date + ' ' + reservation.startTime));
 
         if (
-          createReservationInput.startTime >= reservation.startTime &&
-          createReservationInput.startTime <= reservation.endTime
+          new Date(reservation.date + ' ' + createReservationInput.startTime) >=
+            new Date(reservation.date + ' ' + reservation.startTime) &&
+          new Date(reservation.date + ' ' + createReservationInput.startTime) <=
+            new Date(reservation.date + ' ' + reservation.endTime)
         ) {
           return {
             ok: false,
@@ -128,8 +127,10 @@ export class ReservationService {
         }
 
         if (
-          createReservationInput.endTime >= reservation.startTime &&
-          createReservationInput.endTime <= reservation.endTime
+          new Date(reservation.date + ' ' + createReservationInput.endTime) >=
+            new Date(reservation.date + ' ' + reservation.startTime) &&
+          new Date(reservation.date + ' ' + createReservationInput.endTime) <=
+            new Date(reservation.date + ' ' + reservation.endTime)
         ) {
           return {
             ok: false,
