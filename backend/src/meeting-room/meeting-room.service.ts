@@ -12,6 +12,7 @@ import {
 } from './dto/find-reservations.dto';
 import { MeetingRoom } from './entity/meeting-room.entity';
 import { Reservation } from './entity/reservation.entity';
+import { format } from 'date-fns';
 
 @Injectable()
 export class MeetingRoomService {
@@ -111,34 +112,64 @@ export class ReservationService {
         },
       });
 
-      findReservations.map((reservation) => {
-        console.log(new Date(reservation.date + ' ' + reservation.startTime));
+      const reservationValidation = {
+        ok: true,
+        error: null,
+      };
 
+      findReservations.forEach((reservation) => {
         if (
-          new Date(reservation.date + ' ' + createReservationInput.startTime) >=
-            new Date(reservation.date + ' ' + reservation.startTime) &&
-          new Date(reservation.date + ' ' + createReservationInput.startTime) <=
-            new Date(reservation.date + ' ' + reservation.endTime)
+          format(
+            new Date(reservation.date + ' ' + reservation.startTime),
+            'yyyy-MM-dd HH:mm',
+          ) >=
+            format(
+              new Date(
+                reservation.date + ' ' + createReservationInput.startTime,
+              ),
+              'yyyy-MM-dd HH:mm',
+            ) &&
+          format(
+            new Date(reservation.date + ' ' + reservation.endTime),
+            'yyyy-MM-dd HH:mm',
+          ) <=
+            format(
+              new Date(reservation.date + ' ' + createReservationInput.endTime),
+              'yyyy-MM-dd HH:mm',
+            )
         ) {
-          return {
-            ok: false,
-            error: '예약 시간이 겹칩니다',
-          };
+          reservationValidation.ok = false;
+          reservationValidation.error = '예약 시간이 겹칩니다';
         }
-
         if (
-          new Date(reservation.date + ' ' + createReservationInput.endTime) >=
-            new Date(reservation.date + ' ' + reservation.startTime) &&
-          new Date(reservation.date + ' ' + createReservationInput.endTime) <=
-            new Date(reservation.date + ' ' + reservation.endTime)
+          format(
+            new Date(reservation.date + ' ' + createReservationInput.endTime),
+            'yyyy-MM-dd HH:mm',
+          ) >
+            format(
+              new Date(reservation.date + ' ' + reservation.startTime),
+              'yyyy-MM-dd HH:mm',
+            ) &&
+          format(
+            new Date(reservation.date + ' ' + createReservationInput.endTime),
+            'yyyy-MM-dd HH:mm',
+          ) <=
+            format(
+              new Date(reservation.date + ' ' + reservation.endTime),
+              'yyyy-MM-dd HH:mm',
+            )
         ) {
-          return {
-            ok: false,
-            error: '예약 시간이 겹칩니다',
-          };
+          reservationValidation.ok = false;
+          reservationValidation.error = '예약 시간이 겹칩니다';
         }
       });
 
+      if (!reservationValidation.ok) {
+        return {
+          ok: false,
+          error: reservationValidation.error,
+        };
+      }
       await this.reservationRepository.save(
         this.reservationRepository.create({
           ...createReservationInput,

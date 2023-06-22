@@ -17,6 +17,7 @@ import React, { useEffect, useState } from "react";
 import Selecto from "react-selecto";
 import { Toast } from "../lib/sweetalert2/toast";
 import {
+  CreateMeetingRoomMutation,
   CreateReservationInput,
   CreateReservationMutation,
   User,
@@ -24,6 +25,7 @@ import {
 import Select from "react-select";
 import { useGetUsersQuery } from "../hook/query/useGetUsersQuery";
 import { SubmitHandler, useForm } from "react-hook-form";
+import Swal from "sweetalert2";
 
 export const ALL_MEETING_ROOM_QUERY = gql`
   query allMeetingRoom {
@@ -47,10 +49,19 @@ const CREATE_RESERVATION_MUTATION = gql`
   }
 `;
 
+const CREATE_MEETING_ROOM_MUTATION = gql`
+  mutation createMeetingRoom($input: CreateMeetingRoomInput!) {
+    createMeetingRoom(input: $input) {
+      ok
+      error
+    }
+  }
+`;
+
 interface IFormInput extends CreateReservationInput {}
 
 export const MeetingRoom = () => {
-  const { data } = useQuery(ALL_MEETING_ROOM_QUERY);
+  const { data, refetch } = useQuery(ALL_MEETING_ROOM_QUERY);
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [selectStartTime, setSelectStartTime] = useState<string | null>(null);
   const [selectEndTime, setSelectEndTime] = useState<string | null>(null);
@@ -134,6 +145,38 @@ export const MeetingRoom = () => {
       },
     });
 
+  const [createMeetingRoom, { loading: createMeetingRoomLoading }] =
+    useMutation(CREATE_MEETING_ROOM_MUTATION, {
+      onCompleted: (data: CreateMeetingRoomMutation) => {
+        const {
+          createMeetingRoom: { ok, error },
+        } = data;
+
+        if (ok) {
+          refetch();
+          Toast.fire({
+            icon: "success",
+            title: `회의실 생성이 완료되었습니다`,
+            position: "top-end",
+            timer: 1200,
+          });
+        } else if (error) {
+          Toast.fire({
+            icon: "error",
+            title: error,
+          });
+        }
+      },
+      onError(error) {
+        error.graphQLErrors.map((graphQLError) =>
+          Toast.fire({
+            icon: "error",
+            title: graphQLError.message,
+          })
+        );
+      },
+    });
+
   const reservationTimeList = [
     "08:00 ~ 08:30",
     "08:30 ~ 09:00",
@@ -190,7 +233,6 @@ export const MeetingRoom = () => {
       },
     });
   };
-
   return (
     <div className="mx-auto xl:max-w-screen-xl overflow-auto py-2 px-4 lg:px-8 lg:py-4">
       <div className="flex items-center justify-between mb-5">
@@ -203,7 +245,38 @@ export const MeetingRoom = () => {
             size="lg"
           />
         </div>
-        <Button>회의실 추가</Button>
+        <Button
+          onClick={() =>
+            Swal.fire({
+              title: "회의실 추가",
+              showCancelButton: true,
+              inputLabel: "회의실 이름",
+              input: "text",
+              confirmButtonColor: "#3085d6",
+              cancelButtonColor: "#d33",
+              confirmButtonText: "생성",
+              inputValidator: (result) => {
+                return !result ? "이름을 입력해주세요" : null;
+              },
+            }).then((result) => {
+              if (result.isConfirmed) {
+                if (createMeetingRoomLoading) {
+                  return;
+                }
+
+                createMeetingRoom({
+                  variables: {
+                    input: {
+                      name: result.value,
+                    },
+                  },
+                });
+              }
+            })
+          }
+        >
+          회의실 추가
+        </Button>
       </div>
       <div className="flex flex-wrap">
         {data?.allMeetingRoom?.meetingRooms &&

@@ -5,13 +5,9 @@ export const Toast = Swal.mixin({
   showConfirmButton: false,
   timer: 3000,
   position: "bottom-end",
-  showClass: {
-    popup: "none",
-  },
   hideClass: {
     popup: " animate__fadeOutUp",
   },
-  // background: ,
   timerProgressBar: true,
   didOpen: (toast) => {
     toast.addEventListener("mouseenter", Swal.stopTimer);
