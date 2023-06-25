@@ -34,7 +34,7 @@ export class ReservationResolver {
 
   @Query(() => FindReservationsOutput)
   @Role([RoleName.Any])
-  async findReservation(
+  async findReservations(
     @Args('input') findReservationsInput: FindReservationsInput,
   ): Promise<FindReservationsOutput> {
     return this.reservationService.findReservations(findReservationsInput);

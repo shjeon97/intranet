@@ -26,7 +26,7 @@ export class AuthResolver {
       if (!user || !(await bcrypt.compare(password, user.password))) {
         return {
           ok: false,
-          error: '존재하지 않는 유저입니다',
+          error: 'ID 또는 비밀번호가 일치하지 않습니다.',
         };
       }
 
@@ -39,7 +39,7 @@ export class AuthResolver {
         case UserStatus.Resignation:
           return {
             ok: false,
-            error: '존재하지 않는 유저입니다',
+            error: 'ID 또는 비밀번호가 일치하지 않습니다.',
           };
       }
 

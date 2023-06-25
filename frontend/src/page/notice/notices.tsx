@@ -317,7 +317,7 @@ export default function Notices() {
                   className="border rounded py-1.5 px-3"
                   onClick={() =>
                     table.setPageIndex(
-                      searchNoticeData?.searchWorkRecord?.totalPage
+                      searchNoticeData?.searchNotice?.totalPage
                     )
                   }
                   disabled={!table.getCanNextPage()}

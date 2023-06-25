@@ -40,6 +40,23 @@ export const ALL_MEETING_ROOM_QUERY = gql`
   }
 `;
 
+export const FIND_RESERVATIONS_QUERY = gql`
+  query findReservations($input: FindReservationsInput!) {
+    findReservations(input: $input) {
+      ok
+      error
+      reservations {
+        date
+        meetingRoom {
+          id
+        }
+        startTime
+        endTime
+      }
+    }
+  }
+`;
+
 const CREATE_RESERVATION_MUTATION = gql`
   mutation createReservation($input: CreateReservationInput!) {
     createReservation(input: $input) {
@@ -81,6 +98,17 @@ export const MeetingRoom = () => {
     formState: { errors },
     reset,
   } = useForm<IFormInput>({ mode: "onChange" });
+  const {
+    data: findReservationsData,
+    loading: findReservationsLoading,
+    refetch: findReservationsRefetch,
+  } = useQuery(FIND_RESERVATIONS_QUERY, {
+    variables: {
+      input: {
+        date,
+      },
+    },
+  });
 
   useEffect(() => {
     if (getUsersData?.getUsers.users) {
@@ -121,6 +149,7 @@ export const MeetingRoom = () => {
         setOpen(false);
         setSelectedOption(null);
         reset();
+        findReservationsRefetch();
         if (ok) {
           Toast.fire({
             icon: "success",
@@ -279,9 +308,13 @@ export const MeetingRoom = () => {
         </Button>
       </div>
       <div className="flex flex-wrap">
-        {data?.allMeetingRoom?.meetingRooms &&
+        {!findReservationsLoading &&
+          findReservationsData.findReservations.ok &&
+          data?.allMeetingRoom?.meetingRooms &&
           data?.allMeetingRoom?.meetingRooms.map(
             (meetingRoom: any, index: number) => {
+              console.log(findReservationsData);
+
               return (
                 <div key={index} className="flex gap-5 text-lg">
                   <Selecto
